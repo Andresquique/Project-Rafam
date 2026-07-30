@@ -1,0 +1,21 @@
+@startuml VideoFilter
+actor Usuario
+participant Next.js as Frontend
+participant "VideoController" as Controller
+participant "VideoService" as VideoService
+participant "Video (Prisma)" as PrismaVideo
+database PostgreSQL
+
+Usuario -> Frontend : Realiza búsqueda de videos (con filtros opcionales)
+Frontend -> Controller : GET /api/v1/video?filtros...
+Controller -> VideoService : findQuery(user.nivel_actual_id, query)
+
+VideoService -> VideoService : Arma filtro dinámico (where)
+VideoService -> PrismaVideo : findMany(where)
+PrismaVideo -> PostgreSQL : SELECT * FROM video WHERE ...
+PostgreSQL --> PrismaVideo : Lista<Video>
+PrismaVideo --> VideoService : Lista<Video>
+VideoService --> Controller : Lista<Video>
+Controller --> Frontend : 200 OK + Lista<Video>
+Frontend -> Usuario : Muestra los videos encontrados
+@enduml

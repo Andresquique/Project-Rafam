@@ -1,0 +1,29 @@
+@startuml Login
+actor Usuario
+participant Next.js as Frontend
+participant "AuthController" as Controller
+participant "AuthService" as AuthService
+participant "CredencialService" as CredencialService
+participant "Credencial (Prisma)" as Prisma
+database PostgreSQL
+
+Usuario -> Frontend : Ingresa email y contraseña
+Frontend -> Controller : POST /api/v1/auth/login
+Controller -> AuthService : login(dto)
+AuthService -> CredencialService : findByEmail(dto.email)
+CredencialService -> Prisma : credencial.findUnique({ email })
+Prisma -> PostgreSQL : SELECT * FROM credencial WHERE ...
+PostgreSQL --> Prisma : Credencial + perfil
+Prisma --> CredencialService : Crecencial + perfil
+CredencialService --> AuthService : Credencial + perfil
+AuthService -> AuthService : Validar password (bcrypt.compare)
+alt Password incorrecto
+    AuthService --> Controller : UnauthorizedException
+    Controller --> Frontend : 401 Error
+else Password correcto
+    AuthService -> AuthService : Generar JWT
+    AuthService --> Controller : { access_token: JWT }
+    Controller --> Frontend : Respuesta 200 + token
+end
+Frontend -> Usuario : Acceso al sistema
+@enduml

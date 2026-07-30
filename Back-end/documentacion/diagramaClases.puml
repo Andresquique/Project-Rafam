@@ -1,0 +1,316 @@
+@startuml VitalMove
+skinparam classAttributeIconSize 0
+
+class CreateZonaMuscularDto <<DTO>> {
+  + nombre: string
+  + descripcion: string
+}
+
+class UpdateZonaMuscularDto <<DTO>> {
+  + nombre?: string
+  + descripcion?: string
+}
+
+class ZonaMuscular <<Entity>> {
+  + create(dto: CreateZonaMuscularDto): ZonaM
+  + findOrThrow(id: number): ZonaM
+  + findMany(): ZonaM[]
+  + update(id: number, dto: UpdateZonaMuscularDto): ZonaM
+  + delete(id: number): ZonaM
+}
+
+class ZonaMuscularService <<Service>> {
+  + create(dto: CreateZonaMuscularDto): ZonaM
+  + findAll(): ZonaM[]
+  + findOne(id: number): ZonaM
+  + update(id: number, dto: UpdateZonaMuscularDto): ZonaM
+  + remove(id: number): ZonaM
+}
+
+class ZonaMuscularController <<Controller>> {
+  + create(dto: CreateZonaMuscularDto): ZonaM
+  + findAll(): ZonaM[]
+  + findOne(id: number): ZonaM
+  + update(id: number, dto: UpdateZonaMuscularDto): ZonaM
+  + remove(id: number): ZonaM
+}
+
+class PrismaService
+
+CreateZonaMuscularDto <|-- UpdateZonaMuscularDto
+ZonaMuscularController --> ZonaMuscularService
+ZonaMuscularService --> ZonaMuscular
+ZonaMuscular --> PrismaService
+
+ZonaMuscular ..> CreateZonaMuscularDto 
+ZonaMuscular ..> UpdateZonaMuscularDto
+
+
+class CreateVideoDto <<DTO>> {
+  + nombre: string
+  + descripcion: string
+  + url_video: string
+  + url_miniatura: string
+  + zona_muscular_id: number
+  + nivel_id: number
+}
+
+class FilterVideoDto <<DTO>> {
+  + nivel_id?: number
+  + zona_muscular_id?: number
+  + nombre?: string
+  + descripcion?: string
+}
+
+class UpdateVideoDto <<DTO>> {
+  ' Hereda todos los atributos de CreateVideoDto opcionales
+}
+
+FilterVideoDto <|-- CreateVideoDto
+UpdateVideoDto <|-- CreateVideoDto
+
+class Video <<Entity>> {
+  + create(dto: CreateVideoDto): VideoP
+  + findQuery(where: VideoWhereInput): VideoP[]
+  + findMany(): VideoP[]
+  + findOrThrow(id: number): VideoP
+  + update(id: number, dto: UpdateVideoDto): VideoP
+  + delete(id: number): VideoP
+}
+
+class VideoService <<Service>> {
+  + create(dto: CreateVideoDto): VideoP
+  + findQuery(nivel: number, query: FilterVideoDto): VideoP[]
+  + findAll(): VideoP[]
+  + findOne(id: number): VideoP
+  + update(id: number, dto: UpdateVideoDto): VideoP
+  + remove(id: number): VideoP
+}
+
+class VideoController <<Controller>> {
+  + findQuery(user: JwtPayload, query: FilterVideoDto): VideoP[]
+}
+
+
+VideoController --> VideoService
+VideoService --> Video
+Video --> PrismaService
+VideoService --> ZonaMuscularService
+VideoService --> NivelService
+
+Video ..> CreateVideoDto 
+Video ..> UpdateVideoDto 
+
+class CreateNivelDto <<DTO>> {
+  + nombre: string
+  + numero_orden: number
+}
+
+class UpdateNivelDto <<DTO>> {
+  + nombre?: string
+  + numero_orden?: number
+}
+
+UpdateNivelDto <|-- CreateNivelDto
+
+class Nivel <<Entity>> {
+  + create(dto: CreateNivelDto): NivelP
+  + findMany(): NivelP[]
+  + findOrThrow(id: number): NivelP
+  + update(id: number, dto: UpdateNivelDto): NivelP
+  + delete(id: number): NivelP
+}
+
+
+class NivelService <<Service>> {
+  + create(dto: CreateNivelDto): NivelP
+  + findAll(): NivelP[]
+  + findOne(id: number): NivelP
+  + update(id: number, dto: UpdateNivelDto): NivelP
+  + remove(id: number): NivelP
+}
+
+
+class NivelController <<Controller>> {
+  + create(dto: CreateNivelDto): NivelP
+  + findAll(): NivelP[]
+  + findOne(id: number): NivelP
+  + update(id: number, dto: UpdateNivelDto): NivelP
+  + remove(id: number): NivelP
+}
+
+
+NivelController --> NivelService
+NivelService --> Nivel
+Nivel --> PrismaService
+
+Nivel ..> CreateNivelDto 
+Nivel ..> UpdateNivelDto 
+
+
+class CreatePerfilDto <<DTO>> {
+  + nombre?: string
+  + fecha_nacimiento?: Date
+  + credencialesId: number
+}
+
+class UpdatePerfilDto <<DTO>> {
+  + nombre?: string
+  + fecha_nacimiento?: Date
+  + credencial?: UpdateCredencialDto
+}
+
+CreatePerfilDto <|-- UpdatePerfilDto
+
+class UpdateCredencialDto <<DTO>>
+
+
+class Perfil <<Entity>> {
+  + findMany(): PerfilP[]
+  + findOrThrow(id: number): PerfilP
+  + update(id: number, data: PerfilUpdateInput): PerfilP
+  + updateNivel(id: number, nivelId: number): PerfilP
+  + delete(id: number): PerfilP
+}
+
+
+class PerfilService <<Service>> {
+  + findAll(): PerfilP[]
+  + findOne(id: number): PerfilP
+  + update(id: number, data: UpdatePerfilDto): PerfilP
+  + updateNivel(id: number, nivelId: number): PerfilP
+  + remove(id: number): PerfilP
+}
+
+
+class PerfilController <<Controller>> {
+  + getProfile(user: JwtPayload): PerfilP
+  + update(user: JwtPayload, data: UpdatePerfilDto): PerfilP
+  + remove(user: JwtPayload): PerfilP
+}
+
+class CredencialService <<Service>>
+
+
+PerfilController --> PerfilService
+PerfilService --> Perfil
+Perfil --> PrismaService
+PerfilService --> CredencialService
+PerfilService --> UpdatePerfilDto
+PerfilService --> UpdateCredencialDto
+
+class ResultadoExamenDto <<DTO>> {
+  + puntos: number
+}
+
+
+enum eNivel {
+  PRINCIPIANTE = 1
+  INTERMEDIO = 2
+  AVANZADO = 3
+  MINIMO_REQUERIDO_INTERMEDIO = 4
+  MINIMO_REQUERIDO_AVANZADO = 7
+}
+
+
+class ExamenController <<Controller>> {
+  + validarFecha(user: JwtPayload): void
+  + validarNuevo(user: JwtPayload): void
+  + examen(resultado: ResultadoExamenDto, user: JwtPayload): { perfil: Perfil, access_token: string }
+}
+
+
+class ExamenService <<Service>> {
+  + validarNuevoUsuario(id: number): void
+  + validarFechaExamen(id: number): void
+  + update(id: number, resultado: ResultadoExamenDto): { perfil: Perfil, access_token: string }
+}
+
+
+ExamenController --> ExamenService
+ExamenController --> ResultadoExamenDto
+ExamenService --> PerfilService
+ExamenService --> AuthService
+ExamenService --> ResultadoExamenDto
+ExamenService --> eNivel
+ExamenService --> Perfil
+
+class UpdateCredencialDto <<DTO>> {
+  + email?: string
+  + password?: string
+}
+
+
+class Credencial <<Entity>> {
+  + update(id: number, data: Prisma.CredencialUpdateInput)
+  + create(email: string, password: string)
+  + findByEmail(email: string)
+}
+
+
+class CredencialService <<Service>> {
+  + update(id: number, dto: UpdateCredencialDto)
+  + findByEmail(email: string)
+  + create(email: string, password: string)
+}
+
+
+class PrismaService
+
+
+CredencialService --> Credencial
+Credencial --> PrismaService
+
+class AuthDto <<DTO>> {
+  + email: string
+  + password: string
+}
+
+
+class AuthService <<Service>> {
+  + register(dto: AuthDto)
+  + login(dto: AuthDto)
+  + generateToken(userId, email, rol, nivel_actual_id)
+}
+
+
+class AuthController <<Controller>> {
+  + register(dto: AuthDto)
+  + login(dto: AuthDto)
+  + getProfile(req: Request)
+}
+
+
+
+AuthController --> AuthService
+AuthService --> CredencialService
+AuthService --> AuthDto
+
+class AdminPerfilController <<Controller>> {
+  + findAll(): Perfil[]
+  + findOne(id: number): Perfil
+  + update(id: number, dto: UpdatePerfilDto): Perfil
+  + remove(id: number): Perfil
+}
+
+class AdminVideoController <<Controller>> {
+  + create(dto: CreateVideoDto): Video
+  + findAll(): Video[]
+  + findOne(id: number): Video
+  + update(id: number, dto: UpdateVideoDto): Video
+  + remove(id: number): Video
+}
+
+
+AdminPerfilController --> PerfilService
+AdminPerfilController --> UpdatePerfilDto
+AdminPerfilController --> Perfil
+
+AdminVideoController --> VideoService
+AdminVideoController --> CreateVideoDto
+AdminVideoController --> UpdateVideoDto
+AdminVideoController --> Video
+
+
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml DiagramaFlujoGeneral
+start
+:Usuario abre la web;
+
+partition Autenticacion {
+  if (¿Usuario registrado?) then (No)
+    :Mostrar pantalla de registro;
+    :Usuario se registra;
+  else (Sí)
+    :Mostrar pantalla de login;
+    :Usuario inicia sesión;
+  endif
+}
+
+:Mostrar página principal;
+
+partition Evaluacion {
+  if (¿Usuario nuevo?) then (Sí)
+    :Solicitar realizar examen;
+    :Usuario realiza examen;
+    :Evaluar resultado;
+    :Actualizar nivel en perfil;
+    :Generar token actualizado;
+  else (No)
+    :Usuario accede a videos según nivel;
+  endif
+}
+
+:Usuario selecciona video y reproduce;
+
+stop
+@enduml
+

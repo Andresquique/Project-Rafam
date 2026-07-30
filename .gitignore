@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+Front-end/node_modules/
+Back-end/node_modules/
+
+# Build output
+Front-end/.next/
+Back-end/dist/
+Back-end/build/
+Back-end/out/
+
+# Environment files
+.env
+.env*.local
+Back-end/.env
+
+# Logs
+*.log
+Back-end/dev.log
+Back-end/dev-err.log
+Front-end/dev.log
+Front-end/dev-err.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.launch
+.settings/
+.c9/
+
+# Tests
+coverage/
+.nyc_output/
+
+# Database
+Back-end/data/
+
+# Temp
+.temp
+.tmp
+*.pid
+*.pid.lock
+*.seed
+
+# TypeScript
+*.tsbuildinfo
+
+# Runtime
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# v0
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+.vercel/

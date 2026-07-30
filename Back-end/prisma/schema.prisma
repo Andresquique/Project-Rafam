@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Credencial {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+  perfil    Perfil? // Relación 1:1 con Perfil
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model Perfil {
+  id                Int     @id @default(autoincrement())
+  credencialesId    Int     @unique
+  nombre            String?
+  rol               String  @default("usuario")
+  fecha_nacimiento  DateTime?
+  nivel_actual_id   Int
+  fecha_ultima_evaluacion DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt()
+
+  credencial      Credencial @relation(fields: [credencialesId], references: [id], onDelete: Cascade)
+  nivel_actual      Nivel        @relation(fields: [nivel_actual_id], references: [id])
+}
+
+model Nivel {
+  id                 Int                     @id @default(autoincrement())
+  nombre             String
+  numero_orden       Int                     @unique
+  perfiles Perfil[]
+  videos   Video[]
+}
+
+model Video {
+  id                 Int                 @id @default(autoincrement())
+  nombre             String
+  descripcion        String
+  url_video          String
+  url_miniatura      String
+  zona_muscular_id   Int
+  nivel_id           Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  zonaMuscular       ZonaMuscular       @relation(fields: [zona_muscular_id], references: [id])
+  nivel              Nivel              @relation(fields: [nivel_id], references: [id])
+}
+
+model ZonaMuscular {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique
+  descripcion String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  videos  Video[]
+}

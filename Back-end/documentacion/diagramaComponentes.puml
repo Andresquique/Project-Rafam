@@ -1,0 +1,58 @@
+@startuml Componentes
+
+component "Frontend (Next.js o React)" as Frontend
+
+component "API REST (NestJS)" as API {
+  [Admin]
+  [Auth Module] 
+  [Perfil Module]
+  [Examen Module]
+  [Video Module]
+  [ZonaMuscular Module]
+  [Nivel Module]
+  [Credencial Module]
+  [CASL Authorization Module]
+  
+  component "AuthService" as AuthService
+  component "PerfilService" as PerfilService
+  component "ExamenService" as ExamenService
+  component "VideoService" as VideoService
+  component "ZonaMuscularService" as ZonaMuscularService
+  component "NivelService" as NivelService
+  component "CredencialService" as CredencialService
+
+  component "JwtAuthGuard" as JwtGuard
+  component "JwtStrategy" as JwtStrategy
+  component "PoliciesGuard (CASL)" as CaslGuard
+   
+  component "Prisma Client" as Prisma
+
+}
+
+database "PostgreSQL" as DB
+
+
+Frontend --> API : HTTP/HTTPS (REST API)
+API --> AuthService
+API --> PerfilService
+API --> ExamenService
+API --> VideoService
+API --> ZonaMuscularService
+API --> NivelService
+API --> CredencialService
+
+AuthService --> JwtStrategy
+API --> JwtGuard
+API --> CaslGuard
+
+AuthService --> Prisma
+PerfilService --> Prisma
+ExamenService --> Prisma
+VideoService --> Prisma
+ZonaMuscularService --> Prisma
+NivelService --> Prisma
+CredencialService --> Prisma
+
+Prisma --> DB
+
+@enduml
