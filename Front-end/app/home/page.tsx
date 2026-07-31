@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer"
 
 const actions = [
   { label: "Ver videos", href: "/aviso2", Icon: Tv },
-  { label: "Tomar examen", href: "#examen", Icon: ListChecks },
+  { label: "Tomar examen", href: "/formulario", Icon: ListChecks },
   { label: "Mis datos", href: "#datos", Icon: UserPen },
 ]
 
