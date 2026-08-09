@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function VolverPagPrincipal({ small = false }: { small?: boolean }) {
+export function VolverPagPrincipal() {
   return (
     <div className="flex justify-center pt-2">
         <Link
