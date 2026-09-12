@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type Opcion = {
   label: string;
   value: string;
+  id:string
 };
 
 type PreguntaFormularioProps = {
@@ -47,7 +48,7 @@ export default function PreguntaFormulario({
           <div className="flex flex-col gap-2.5 items-start">
             {opciones.map((opcion) => (
               <label
-                key={opcion.value}
+                key={opcion.id}
                 className="flex items-center cursor-pointer text-gray-700 hover:text-[#164280] transition-colors"
               >
                 <input

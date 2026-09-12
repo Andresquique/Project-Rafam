@@ -7,13 +7,17 @@ type FormularioProps = {
   onSubmit: (puntuacion: number) => void;
 };
 
+function clamp(valor: number, min: number, max: number) {
+  return Math.min(Math.max(valor, min), max);
+}
+
 export function Formulario({ onSubmit }: FormularioProps) {
   function calcularTotal() {
     const total = Object.values(respuestas).reduce(
       (suma, valor) => suma + Number(valor),
       0
     );
-    return total
+    return clamp(total, 0, 12)
   }
 
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
@@ -33,6 +37,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
       if (nombreBoton === Nombres.pieAdelantado && valor === "0") {
         delete nuevas[Nombres.piesEnLinea];
       }
+
       return nuevas;
     });
   }
@@ -64,8 +69,8 @@ export function Formulario({ onSubmit }: FormularioProps) {
                   nombre={Nombres.piesParalelos}
                   pregunta="A. Pararse con los pies uno al lado del otro (¿Mantuvo la posición al menos por 10 segundos?)"
                   opciones={[
-                    { label: "No (0 puntos)", value: "0"},
-                    { label: "Sí (1 punto)", value: "1"},
+                    { label: "No (0 puntos)", value: "0", id:"No pies paralelos"},
+                    { label: "Sí (1 punto)", value: "1", id:"Sí pies paralelos"},
                   ]}
                   onChange={cambiaRadioButton}
                 />
@@ -74,8 +79,8 @@ export function Formulario({ onSubmit }: FormularioProps) {
                     nombre={Nombres.pieAdelantado}
                     pregunta="B. Pararse en posición semi-tándem (¿Mantuvo la posición al menos por 10 segundos?)"
                     opciones={[
-                      { label: "No (0 puntos)", value: "0"},
-                      { label: "Sí (1 punto)", value: "1"},
+                      { label: "No (0 puntos)", value: "0", id:"No pie adelantado"},
+                      { label: "Sí (1 punto)", value: "1", id:"Sí pie adelantado"},
                     ]}
                     onChange={cambiaRadioButton}
                   />
@@ -85,9 +90,9 @@ export function Formulario({ onSubmit }: FormularioProps) {
                     nombre={Nombres.piesEnLinea}
                     pregunta="C. Pararse en posición tándem (¿Mantuvo la posición? Seleccione puntos según tiempo)"
                     opciones={[
-                      { label: "Mantuvo menos de 3 seg o no lo intenta (0 puntos)", value: "0"},
-                      { label: "Mantuvo de 3 a 9.99 segundos (1 punto)", value: "1"},
-                      { label: "Mantuvo 10 segundos (2 puntos)", value: "2"},
+                      { label: "Mantuvo menos de 3 seg o no lo intenta (0 puntos)", value: "0", id:"<3 seg pies en linea"},
+                      { label: "Mantuvo de 3 a 9.99 segundos (1 punto)", value: "1", id:">3 <9.99 pies en linea"},
+                      { label: "Mantuvo 10 segundos (2 puntos)", value: "2", id:"10 seg pies en linea"},
                     ]}
                     onChange={cambiaRadioButton}
                   />
@@ -102,11 +107,11 @@ export function Formulario({ onSubmit }: FormularioProps) {
                   nombre={Nombres.calificacionDeLaMedicionMenor}
                   pregunta="Calificación de la medición menor (mejor tiempo):"
                   opciones={[
-                    { label: "No logró completarlo (0 puntos)", value: "0"},
-                    { label: "> 8 segundos (1 punto)", value: "1"},
-                    { label: "6 a 8 segundos (2 puntos)", value: "2"},
-                    { label: "4 a 6 segundos (3 puntos)", value: "3"},
-                    { label: "< 4 segundos (4 puntos)", value: "4"},
+                    { label: "No logró completarlo (0 puntos)", value: "0", id:"No logró completar velocidad de marcha"},
+                    { label: "> 8 segundos (1 punto)", value: "1", id:">8 seg velocidad de marcha"},
+                    { label: "6 a 8 segundos (2 puntos)", value: "2", id:">6 <8 seg velocidad de marcha"},
+                    { label: "4 a 6 segundos (3 puntos)", value: "3", id:">4 <6 seg velocidad de marcha"},
+                    { label: "< 4 segundos (4 puntos)", value: "4", id:"<4 seg velocidad de marcha"},
                   ]}
                   onChange={cambiaRadioButton}
                 />
@@ -120,21 +125,21 @@ export function Formulario({ onSubmit }: FormularioProps) {
                   nombre={Nombres.sentado}
                   pregunta="A. Prueba previa: ¿El paciente se levanta sin apoyarse en los brazos?"
                   opciones={[
-                    { label: "No (0 puntos)", value: "0"},
-                    { label: "Sí (1 punto)", value: "1"},
+                    { label: "No", value: "0", id:"No sentado"},
+                    { label: "Sí", value: "1", id:"Si sentado"},
                   ]}
                   onChange={cambiaRadioButton}
                 />
-                {(Nombres.sentado in respuestas && Number(respuestas[Nombres.sentado]) >= 1) && (
+                {(Nombres.sentado in respuestas && Number(respuestas[Nombres.sentado])) && (
                   <PreguntaFormulario
                     nombre={Nombres.parado}
                     pregunta="B. Tiempo requerido para levantarse cinco veces (segundos):"
                     opciones={[
-                      { label: "Incapaz o tarda > 60 seg (0 puntos)", value: "0"},
-                      { label: "16.7 a 60 seg (1 punto)", value: "1"},
-                      { label: "13.7 a 16.69 seg (2 puntos)", value: "2"},
-                      { label: "11.2 a 13.69 seg (3 puntos)", value: "3"},
-                      { label: "≤ 11.19 seg (4 puntos)", value: "4"},
+                      { label: "Incapaz o tarda > 60 seg (0 puntos)", value: "0", id: ">60 seg parado" },
+                      { label: "16.7 a 60 seg (1 punto)", value: "1", id: ">16.7 <60 seg parado" },
+                      { label: "13.7 a 16.69 seg (2 puntos)", value: "2", id: ">13.7 <16.69 seg parado" },
+                      { label: "11.2 a 13.69 seg (3 puntos)", value: "3", id: ">11.2 <13.69 seg parado" },
+                      { label: "≤ 11.19 seg (4 puntos)", value: "4", id: "<=11.19 seg parado" },
                     ]}
                     onChange={cambiaRadioButton}
                   />

@@ -1,0 +1,4 @@
+export enum eNivel {
+  MINIMO_REQUERIDO_INTERMEDIO = 4,
+  MINIMO_REQUERIDO_AVANZADO = 7,
+}
