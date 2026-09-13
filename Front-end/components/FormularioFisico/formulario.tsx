@@ -58,10 +58,10 @@ export function Formulario({ onSubmit }: FormularioProps) {
   return (
     <div className="min-h-screen flex flex-col items-center">
       <main className="w-full max-w-4xl px-4 py-4 flex justify-center">
-        <div className="w-full h-auto rounded-[24px] bg-white border-2 border-yellow-300 p-5 sm:p-6 shadow-[0_12px_40px_rgba(22,66,128,0.08)]">
+        <div className="w-full h-auto rounded-[24px] bg-white border-2 border-rafam-yellow p-5 sm:p-6 shadow-[0_12px_40px_rgba(22,66,128,0.08)]">
           <form onSubmit={submitForm}>
             <section className="flex flex-col w-full mx-auto">
-              <h3 className="text-xl font-bold text-[#164280] pb-1 flex items-center mb-2">
+              <h3 className="text-xl font-bold text-rafam-blue pb-1 flex items-center mb-2">
                 1. Prueba de Balance
               </h3>
               <div className="w-full">
@@ -99,7 +99,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
                 )}
               </div>
             
-              <h3 className="text-xl font-bold text-[#164280] pb-1 flex items-center mt-3 mb-2">
+              <h3 className="text-xl font-bold text-rafam-blue pb-1 flex items-center mt-3 mb-2">
                 2. Velocidad de marcha
               </h3>
               <div className="w-full">
@@ -117,7 +117,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
                 />
               </div>
             
-              <h3 className="text-xl font-bold text-[#164280] flex items-center mt-3 mb-2">
+              <h3 className="text-xl font-bold text-rafam-blue flex items-center mt-3 mb-2">
                 3. Levantarse Cinco Veces de una Silla
               </h3>
               <div className="w-full">
@@ -151,7 +151,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
                 <button
                   type="button"
                   onClick={submitForm}
-                  className="rounded-xl bg-[#164280] px-6 py-2.5 text-white font-medium hover:bg-[#0f2d57] transition-colors shadow-md"
+                  className="rounded-lg bg-rafam-blue px-10 py-3 text-lg font-bold text-rafam-yellow transition-colors hover:bg-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"
                 >
                   Calcular puntaje
                 </button>
