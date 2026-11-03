@@ -51,7 +51,7 @@ export default function HomePage() {
           </button>
 
           <Link
-            href="/aviso2"
+            href="/video"
             className="flex flex-col items-center gap-4 rounded-lg py-4 text-rafam-blue transition-colors hover:text-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"
           >
             <Tv

@@ -6,6 +6,8 @@ import Image from "next/image"
 import { Search, ImageIcon } from "lucide-react"
 import { useVideoUserStore } from "@/stores/videoUser.store"
 import type { Video } from "@/types/videos.types"
+import { VideoPlayerModal } from "@/components/video-player-modal"
+import { VideoPlayOverlay } from "@/components/video-play-overlay"
 
 const ZONE_MAP: Record<string, number | undefined> = {
   TODAS: undefined,
@@ -244,16 +246,22 @@ function FilterGroup({
 }
 
 function VideoCard({ video }: { video: Video }) {
+  const [playing, setPlaying] = useState(false)
   const zoneLabel = ZONE_LABEL[video.zona_muscular_id] ?? `Zona ${video.zona_muscular_id}`
   const levelLabel = LEVEL_LABEL[video.nivel_id] ?? `Nivel ${video.nivel_id}`
 
   return (
     <article className="flex flex-col gap-3 rounded-xl border-2 border-rafam-blue bg-card p-4">
-      <div className="relative flex aspect-video items-center justify-center rounded-md bg-muted">
+      <button
+        type="button"
+        onClick={() => setPlaying(true)}
+        aria-label={`Reproducir ${video.nombre}`}
+        className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-md bg-muted focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"
+      >
         {video.url_miniatura ? (
           <Image
             src={video.url_miniatura}
-            alt={video.nombre}
+            alt=""
             fill
             className="rounded-md object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -261,17 +269,24 @@ function VideoCard({ video }: { video: Video }) {
         ) : (
           <ImageIcon className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
         )}
-        <span className="absolute left-2 top-2 rounded-md border border-rafam-blue bg-card px-2 py-0.5 text-xs font-bold text-rafam-blue">
+        <span className="absolute left-2 top-2 z-10 rounded-md border border-rafam-blue bg-card px-2 py-0.5 text-xs font-bold text-rafam-blue">
           Dificultad: {capitalize(levelLabel)}
         </span>
-        <span className="absolute right-2 top-2 rounded-md border border-rafam-blue bg-card px-2 py-0.5 text-xs font-bold text-rafam-blue">
+        <span className="absolute right-2 top-2 z-10 rounded-md border border-rafam-blue bg-card px-2 py-0.5 text-xs font-bold text-rafam-blue">
           Parte: {capitalize(zoneLabel)}
         </span>
-      </div>
+        <VideoPlayOverlay />
+      </button>
       <div>
         <h3 className="text-lg font-bold text-foreground">{video.nombre}</h3>
         <p className="text-sm text-muted-foreground">{video.descripcion}</p>
       </div>
+      <VideoPlayerModal
+        open={playing}
+        title={video.nombre}
+        url={video.url_video}
+        onClose={() => setPlaying(false)}
+      />
     </article>
   )
 }
