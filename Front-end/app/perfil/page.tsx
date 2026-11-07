@@ -10,6 +10,38 @@ import Aviso from "@/components/aviso.component"
 import { usePerfilUserStore } from "@/stores/perfilUser.store"
 import { UpdatePerfilUserDto } from "@/types/perfilUser.types"
 
+/**
+ * Normaliza la respuesta del backend por si viene envuelta en { data: {...} }
+ * o con nombres de campos alternativos.
+ */
+function normalizeProfile(raw: any) {
+  if (!raw) return null
+  const p = raw.data ?? raw
+  const credencial = p.credencial ?? p.credenciales ?? {}
+
+  return {
+    nombre: p.nombre ?? p.name ?? "",
+    fecha_nacimiento: p.fecha_nacimiento ?? p.fechaNacimiento ?? "",
+    email: credencial.email ?? p.email ?? "",
+  }
+}
+
+function toDateInputValue(value?: string | null): string {
+  if (!value) return ""
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+    return value.slice(0, 10)
+  }
+
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (match) {
+    const [, dd, mm, yyyy] = match
+    return `${yyyy}-${mm}-${dd}`
+  }
+
+  return ""
+}
+
 export default function PerfilPage() {
   const {
     myProfile,
@@ -19,52 +51,58 @@ export default function PerfilPage() {
     updateMyProfile,
   } = usePerfilUserStore()
 
-  // Estados del formulario para los campos del perfil
   const [name, setName] = useState<string>("")
   const [dob, setDob] = useState<string>("")
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
 
-  // Estado para controlar la edición del campo de contraseña
   const [editingPassword, setEditingPassword] = useState<boolean>(false)
 
-  // Estado para mostrar/ocultar el texto plano de la contraseña
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
-  // Estados para errores de validación
+  const [hasFetched, setHasFetched] = useState<boolean>(false)
+
   const [nameError, setNameError] = useState<string>("")
   const [dobError, setDobError] = useState<string>("")
   const [emailError, setEmailError] = useState<string>("")
   const [passwordError, setPasswordError] = useState<string>("")
 
-  // Aviso del sistema (mensajes de éxito o error)
   const [avisoOpen, setAvisoOpen] = useState(false)
   const [avisoMensaje, setAvisoMensaje] = useState("")
   const [avisoTitulo, setAvisoTitulo] = useState("Mi Perfil")
 
-  // Cargar datos del perfil al montar la página
   useEffect(() => {
-    if (!myProfile) {
-      fetchMyProfile()
+    let cancelled = false
+
+    const load = async () => {
+      try {
+        await fetchMyProfile()
+      } catch (error) {
+        console.error("Error al cargar el perfil:", error)
+      } finally {
+        if (!cancelled) setHasFetched(true)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  // Actualizar los campos del formulario cuando se cargan los datos del perfil
   useEffect(() => {
-    if (myProfile) {
-      setName(myProfile.nombre || "")
-      setDob(
-        myProfile.fecha_nacimiento
-          ? myProfile.fecha_nacimiento.split("T")[0]
-          : ""
-      )
-      setEmail(myProfile.credencial?.email || "")
+    console.log("myProfile:", myProfile)
+
+    const profile = normalizeProfile(myProfile)
+    if (profile) {
+      setName(profile.nombre)
+      setDob(toDateInputValue(profile.fecha_nacimiento))
+      setEmail(profile.email)
       setPassword("")
     }
   }, [myProfile])
 
-  // Funciones de validación
   const validateName = (value: string) => {
     if (!value.trim()) {
       return "El nombre es obligatorio."
@@ -101,7 +139,6 @@ export default function PerfilPage() {
     return ""
   }
 
-  // Manejador para el envío del formulario
   const handleSaveClick = async (e: FormEvent) => {
     e.preventDefault()
 
@@ -124,7 +161,8 @@ export default function PerfilPage() {
       fecha_nacimiento: dob,
     }
 
-    const emailChanged = email !== (myProfile?.credencial?.email || "")
+    const originalEmail = normalizeProfile(myProfile)?.email ?? ""
+    const emailChanged = email !== originalEmail
     const passwordChanged = editingPassword && password.length > 0
 
     if (emailChanged || passwordChanged) {
@@ -145,11 +183,23 @@ export default function PerfilPage() {
       setEditingPassword(false)
       setPassword("")
     } catch (error: any) {
+      const detalle =
+        error?.response?.data?.message ??
+        error?.message ??
+        (typeof error === "string" ? error : "Error desconocido")
+
       setAvisoTitulo("Error al actualizar")
-      setAvisoMensaje("Error de actualización de datos: " + error)
+      setAvisoMensaje(
+        "Error de actualización de datos: " +
+          (Array.isArray(detalle) ? detalle.join(", ") : detalle)
+      )
       setAvisoOpen(true)
     }
   }
+
+  const showLoading = !myProfile && !myProfileError && (isLoadingMyProfile || !hasFetched)
+  const showError = !myProfile && !!myProfileError
+  const showEmpty = !myProfile && !myProfileError && hasFetched && !isLoadingMyProfile
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
@@ -164,14 +214,36 @@ export default function PerfilPage() {
 
         <div className="w-full max-w-4xl px-4 py-4 mx-auto flex justify-center">
           <div className="w-full h-auto rounded-[24px] bg-white border-2 border-yellow-300 p-5 sm:p-6 shadow-[0_12px_40px_rgba(22,66,128,0.08)]">
-            {isLoadingMyProfile && !myProfile ? (
+            {showLoading ? (
               <p className="text-center text-xl text-[#164280]">
                 Cargando perfil...
               </p>
-            ) : myProfileError && !myProfile ? (
-              <p className="text-center text-xl text-red-500">
-                Error: {myProfileError}
-              </p>
+            ) : showError ? (
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-center text-xl text-red-500">
+                  Error: {myProfileError}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => fetchMyProfile()}
+                  className="rounded-xl bg-[#164280] px-6 py-2.5 text-white font-medium hover:bg-[#0f2d57] transition-colors shadow-md"
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : showEmpty ? (
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-center text-xl text-[#164280]">
+                  No se pudieron obtener los datos del perfil.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => fetchMyProfile()}
+                  className="rounded-xl bg-[#164280] px-6 py-2.5 text-white font-medium hover:bg-[#0f2d57] transition-colors shadow-md"
+                >
+                  Reintentar
+                </button>
+              </div>
             ) : (
               <form onSubmit={handleSaveClick}>
                 <section className="flex flex-col w-full mx-auto">
