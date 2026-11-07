@@ -35,6 +35,7 @@ export interface UpdatePerfilAdminDto {
   nombre?: string;
   fecha_nacimiento?: string;
   nivel_actual_id?: number;
+  rol?: string;
   credencial?: UpdateAdminCredencialDto;
 }
 
