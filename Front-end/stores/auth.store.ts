@@ -7,11 +7,14 @@ import { LoginDto, RegisterDto, UserPayload } from '../types/auth.types';
 import { authApi } from '../api/auth.api';
 
 interface AuthState {
+  // token que nos devuelve el login, se usa en el header Authorization
   accessToken: string | null;
+  // datos del usuario logueado (los mismos campos del payload del JWT)
   user: UserPayload | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  // isInitialized lo uso para saber si ya terminó de revisar la sesión al arrancar la app
   isInitialized: boolean; 
 
   login: (credentials: LoginDto) => Promise<void>;
@@ -37,9 +40,11 @@ export const useAuthStore = create<AuthState>()(
       login: async (credentials) => {
         set({ isLoading: true, error: null });
         try {
+          // primero guardamos el token, porque getProfile lo necesita para autenticarse
           const { access_token } = await authApi.login(credentials);
           set({ accessToken: access_token, isAuthenticated: true });
 
+          // con el token ya guardado pedimos los datos del usuario
           const userPayload = await authApi.getProfile();
           set({ user: userPayload, isLoading: false });
 
@@ -69,6 +74,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        // limpiamos todo, no hace falta pegarle al back porque el token es stateless
         set({ 
           accessToken: null, 
           user: null, 
@@ -81,6 +87,7 @@ export const useAuthStore = create<AuthState>()(
       checkAuth: async () => {
         const currentToken = get().accessToken;
 
+        // si no hay token guardado ni intentamos, marcamos como inicializado
         if (!currentToken) {
           set({ isAuthenticated: false, user: null, isLoading: false, isInitialized: true });
           return;
@@ -88,6 +95,7 @@ export const useAuthStore = create<AuthState>()(
 
         set({ isLoading: true, error: null });
         try {
+          // token guardado puede estar vencido, así que preguntamos al back si sigue vivo
           const userPayload = await authApi.getProfile();
           set({ 
             user: userPayload, 
@@ -97,6 +105,7 @@ export const useAuthStore = create<AuthState>()(
           });
         } catch (err: any) {
           console.error('Error al verificar autenticación (auth.store):', err);
+          // pendiente: revisar si conviene marcar isInitialized acá, logout no lo toca
           get().logout();
         }
       },
@@ -110,10 +119,12 @@ export const useAuthStore = create<AuthState>()(
           return false;
         }
         // Verifica si el usuario tiene al menos uno de los roles requeridos
+        // ojo que esto compara un solo rol, no un array como parecía al principio
         return rolRequerido === currentUser.rol;
       },
 
       // Nueva función para actualizar datos de autenticación
+      // la usa el store del examen físico cuando el back devuelve un token nuevo
       updateAuthData: (data: { access_token: string; user: UserPayload }) => {
         set({ 
           accessToken: data.access_token, 
@@ -124,8 +135,10 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
+      // con persist el store se guarda solo en localStorage bajo esta key
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
+      // de todo el estado solo guardamos token y user, los booleanos se recalculan
       partialize: (state) => ({
         accessToken: state.accessToken,
         user: state.user,
@@ -136,6 +149,7 @@ export const useAuthStore = create<AuthState>()(
             console.error('Failed to rehydrate auth store', error);
             state?.logout();
           } else if (state) {
+            // cuando vuelve a abrir la app, si había token verificamos que siga sirviendo
             if (state.accessToken) {
               state.checkAuth();
             } else {

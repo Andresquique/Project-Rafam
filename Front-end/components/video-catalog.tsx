@@ -1,3 +1,6 @@
+// Catálogo de videos para el usuario común: filtros por parte del cuerpo y dificultad,
+// buscador, paginación de 3 en 3 y un modal para reproducir cada video.
+// Todo lo que es datos lo maneja el store useVideoUserStore.
 "use client"
 
 import { useEffect, useState } from "react"
@@ -9,6 +12,7 @@ import type { Video } from "@/types/videos.types"
 import { VideoPlayerModal } from "@/components/video-player-modal"
 import { VideoPlayOverlay } from "@/components/video-play-overlay"
 
+// estos mapas traducen lo que muestra la interfaz a los ids que usa el back
 const ZONE_MAP: Record<string, number | undefined> = {
   TODAS: undefined,
   BRAZOS: 1,
@@ -23,6 +27,7 @@ const LEVEL_MAP: Record<string, number | undefined> = {
   AVANZADA: 3,
 }
 
+// y estos son al revés, para mostrar el nombre cuando el video ya viene con el id
 const ZONE_LABEL: Record<number, string> = {
   1: "BRAZOS",
   2: "PIERNAS",
@@ -43,26 +48,32 @@ type Difficulty = (typeof difficulties)[number]
 
 const capitalize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase()
 
+// cantidad de videos por página, lo dejé en 3 para que no quede tan larga la pantalla
 const PAGE_SIZE = 3
 
 export function VideoCatalog() {
+  // del store saco los videos, el estado de carga y las acciones de filtrado
   const { videos, loading, fetchVideos, filterByZone, filterByLevel, searchVideos, clearFilters } =
     useVideoUserStore()
 
+  // estos estados son solo de la pantalla: filtros seleccionados, texto buscado y página actual
   const [part, setPart] = useState<BodyPart>("TODAS")
   const [difficulty, setDifficulty] = useState<Difficulty>("TODAS")
   const [query, setQuery] = useState("")
   const [page, setPage] = useState(1)
 
+  // la primera vez que se monta pido los videos a la API
   useEffect(() => {
     fetchVideos()
   }, [fetchVideos])
 
+  // calculo el total de páginas y recorto el array para mostrar solo las de esta página
   const totalPages = Math.max(1, Math.ceil(videos.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const visible = videos.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function handlePartChange(option: string) {
+    // cada vez que cambio un filtro vuelvo a la página 1
     const val = option as BodyPart
     setPart(val)
     setPage(1)
@@ -70,6 +81,7 @@ export function VideoCatalog() {
   }
 
   function handleDifficultyChange(option: string) {
+    // lo mismo que el filtro de zona pero con el nivel
     const val = option as Difficulty
     setDifficulty(val)
     setPage(1)
@@ -77,11 +89,13 @@ export function VideoCatalog() {
   }
 
   function handleSearch() {
+    // trim para que no busque espacios de más
     setPage(1)
     searchVideos(query.trim())
   }
 
   function handleClearSearch() {
+    // limpiar deja todo como al principio: texto, filtros y página
     setQuery("")
     setPart("TODAS")
     setDifficulty("TODAS")
@@ -118,6 +132,8 @@ export function VideoCatalog() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
+                // esto lo saqué de la documentación: el isComposing y el 229 son para que
+                // no busque mientras se está escribiendo con el teclado en otro idioma
                 if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) handleSearch()
               }}
               placeholder="Que estas buscando?"
@@ -141,6 +157,7 @@ export function VideoCatalog() {
 
         {/* Resultados */}
         <div className="rounded-xl border-2 border-rafam-yellow p-4 sm:p-6">
+          {/* mientras el store carga muestro el cartelito de carga */}
           {loading ? (
             <p className="py-12 text-center text-lg text-muted-foreground">Cargando ejercicios...</p>
           ) : (
@@ -156,6 +173,7 @@ export function VideoCatalog() {
               </div>
 
               {/* Paginación */}
+              {/* Anterior y Siguiente se deshabilitan en los extremos y el número activo queda pintado */}
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -215,6 +233,7 @@ function FilterGroup({
   onSelect,
   className = "",
 }: {
+  // este componente chiquito arma una lista de botones para filtrar, lo uso dos veces
   title: string
   options: readonly string[]
   selected: string
@@ -246,7 +265,9 @@ function FilterGroup({
 }
 
 function VideoCard({ video }: { video: Video }) {
+  // cada tarjeta maneja su propio estado para abrir el reproductor
   const [playing, setPlaying] = useState(false)
+  // si el id no está en el mapa muestro un texto genérico en vez de romper
   const zoneLabel = ZONE_LABEL[video.zona_muscular_id] ?? `Zona ${video.zona_muscular_id}`
   const levelLabel = LEVEL_LABEL[video.nivel_id] ?? `Nivel ${video.nivel_id}`
 
@@ -259,6 +280,7 @@ function VideoCard({ video }: { video: Video }) {
         className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-md bg-muted focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"
       >
         {video.url_miniatura ? (
+          // next/image necesita fill porque el contenedor ya define el tamaño
           <Image
             src={video.url_miniatura}
             alt=""
@@ -281,6 +303,7 @@ function VideoCard({ video }: { video: Video }) {
         <h3 className="text-lg font-bold text-foreground">{video.nombre}</h3>
         <p className="text-sm text-muted-foreground">{video.descripcion}</p>
       </div>
+      {/* el modal se abre con playing; al cerrar vuelve a false y no se renderiza nada */}
       <VideoPlayerModal
         open={playing}
         title={video.nombre}

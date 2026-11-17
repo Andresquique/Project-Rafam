@@ -7,6 +7,7 @@ import {
 } from './videosBase.store';
 
 // El store de usuario solo usa las funciones base
+// la diferencia con el de admin es que acá no se puede crear, editar ni borrar
 export const useVideoUserStore = create<BaseVideoState & BaseVideoActions>((set, get) => ({
   ...initialVideoState,
   ...createBaseVideoActions(set, get),

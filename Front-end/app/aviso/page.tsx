@@ -2,9 +2,11 @@ import Link from "next/link"
 import { RafamHeader } from "@/components/rafam-header"
 
 export default function AvisoPage() {
+  // aviso previo al examen: no tiene lógica, es solo texto informativo
   return (
     <main className="flex min-h-screen flex-col items-center bg-background">
       <div className="flex w-full justify-center">
+        {/* header chico para que no ocupe media pantalla */}
         <RafamHeader small />
       </div>
 
@@ -14,6 +16,7 @@ export default function AvisoPage() {
             Bienvenido a la aplicacion de actividad fisica para adultos mayores.
           </h1>
 
+          {/* las tres aclaraciones que le mostramos al usuario antes de arrancar */}
           <div className="mt-8 flex flex-col gap-6 text-center text-lg leading-relaxed text-foreground sm:text-xl">
             <p className="text-pretty">
               A continuacion debera tomar un examen fisico que puede realizar desde su casa. El resultado del examen
@@ -29,6 +32,7 @@ export default function AvisoPage() {
         </div>
 
         <div className="mt-8 flex justify-center">
+          {/* sigue al home, que es donde está el menú principal */}
           <Link
             href="/home"
             className="rounded-lg bg-rafam-blue px-16 py-4 text-2xl font-bold text-rafam-yellow transition-colors hover:bg-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"

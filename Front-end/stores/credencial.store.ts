@@ -7,6 +7,7 @@ import { Credencial } from '../types/credencial.types';
 
 // Define la interfaz de estado para el store de credenciales.
 interface CredencialState {
+  // la credencial que estamos mirando en ese momento (la última que se buscó/creó)
   currentCredencial: Credencial | null;
   isLoading: boolean;
   error: string | null;
@@ -35,6 +36,7 @@ export const useCredencialStore = create<CredencialState>()(
         set({ isLoading: true, error: null });
         try {
           const newCredencial = await credencialApi.create(data);
+          // guardamos la credencial creada como la actual del store
           set({ currentCredencial: newCredencial, isLoading: false });
           return newCredencial;
         } catch (err: any) {
@@ -61,6 +63,7 @@ export const useCredencialStore = create<CredencialState>()(
       },
 
       //Obtiene una credencial por su dirección de correo electrónico desde la API.
+      // la ruta es la misma que getById, el back se da cuenta por el formato
       fetchCredencialByEmail: async (email) => {
         set({ isLoading: true, error: null });
         try {
@@ -111,6 +114,7 @@ export const useCredencialStore = create<CredencialState>()(
 
     //Configuración de persistencia
     {
+      // ojo que partialize devuelve un objeto vacío, así que en realidad no persiste nada
       name: 'credencial-storage', 
       storage: createJSONStorage(() => localStorage),
       partialize: () => ({

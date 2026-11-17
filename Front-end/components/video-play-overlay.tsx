@@ -1,7 +1,10 @@
 import { Play } from "lucide-react"
 
+// Círculo con el triángulo de play que se pone arriba de las miniaturas.
+// La prop compact lo hace más chico para las tarjetas del panel de admin.
 export function VideoPlayOverlay({ compact = false }: { compact?: boolean }) {
   return (
+    // pointer-events-none para que el click lo reciba la tarjeta de abajo
     <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/25 group-focus-visible:bg-black/25">
       <span
         className={`flex items-center justify-center rounded-full border-2 border-rafam-yellow bg-rafam-blue text-rafam-yellow shadow-md ${

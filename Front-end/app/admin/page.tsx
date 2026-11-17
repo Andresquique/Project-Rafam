@@ -9,8 +9,10 @@ import { useAuthStore } from '@/stores/auth.store'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
+  // logout está en el store de auth, acá solo lo llamamos desde el botón
   const { user, isAuthenticated, isInitialized, logout } = useAuthStore()
 
+  // pantalla de admin: si el rol no corresponde lo devuelvo al login
   useEffect(() => {
     if (isInitialized && (!isAuthenticated || (user?.rol !== 'admin' && user?.rol !== 'Administrador'))) {
       router.push('/')
@@ -34,6 +36,7 @@ export default function AdminDashboardPage() {
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6">
         <div className="rounded-lg border-2 border-rafam-yellow p-8 md:p-12">
+          {/* las dos tarjetas grandes que llevan a cada ABM */}
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             <Link
               href="/admin/videos"
@@ -54,6 +57,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex justify-center py-12">
+          {/* cierro sesión y recién después navego al login */}
           <button
             onClick={() => { logout(); router.push('/') }}
             className="rounded-lg bg-rafam-blue px-10 py-4 text-2xl font-extrabold text-rafam-yellow transition-opacity hover:opacity-90"

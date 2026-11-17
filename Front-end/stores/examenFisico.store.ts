@@ -8,6 +8,7 @@ import { examenFisicoApi } from '../api/examenFisico.api';
 import { useAuthStore } from './auth.store';
 
 interface ExamenState {
+  // respuesta del back con el perfil actualizado y el token nuevo
   result: ExamenResponse | null;
   isLoading: boolean;
   error: string | null;
@@ -31,6 +32,8 @@ export const useExamenStore = create<ExamenState>()(
           set({ result: resultado, isLoading: false });
 
           // Actualizar el token y usuario en el store de auth
+          // acá tuve que arreglar un bug con esto: si no refrescábamos el token,
+          // el usuario seguía con el nivel viejo hasta volver a loguearse
           const authStore = useAuthStore.getState();
           authStore.updateAuthData({
             access_token: resultado.access_token,
@@ -57,6 +60,7 @@ export const useExamenStore = create<ExamenState>()(
     
     //Configuración de persistencia
     {
+      // sin storage explícito, persist usa localStorage por defecto
       name: 'examen-storage'
     }
   )

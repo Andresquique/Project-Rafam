@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // stores/base/videoBase.store.ts
+// acá está todo lo que comparten el store de admin y el de usuario
 import { getVideos, getVideoById } from '../api/videos.api';
 import { Video, FilterVideoDto } from '../types/videos.types';
 
 // Estado base compartido
 export interface BaseVideoState {
   videos: Video[];
+  // el video abierto en el detalle, null si no hay ninguno
   currentVideo: Video | null;
   loading: boolean;
   error: string | null;
+  // filtros activos, se mandan tal cual a la api
   filters: FilterVideoDto;
 }
 
@@ -39,6 +42,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   fetchVideos: async (filters?: FilterVideoDto) => {
     set({ loading: true, error: null });
     try {
+      // si no le pasan filtros, usa los que ya están guardados en el store
       const filtersToUse = filters || get().filters;
       const fetchedVideos = await getVideos(filtersToUse);
       set({ 
@@ -83,6 +87,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   searchVideos: async (searchTerm: string) => {
+    // busca en nombre y descripción a la vez, manteniendo los otros filtros
     const filters: FilterVideoDto = {
       ...get().filters,
       nombre: searchTerm || undefined,
@@ -92,6 +97,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   filterByLevel: async (nivel_id?: number) => {
+    // si llega undefined (o sea "todos"), el filtro se saca
     const filters: FilterVideoDto = {
       ...get().filters,
       nivel_id: nivel_id || undefined
@@ -101,6 +107,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   filterByZone: async (zona_muscular_id?: number) => {
+    // mismo criterio que filterByLevel pero para la zona muscular
     const filters: FilterVideoDto = {
       ...get().filters,
       zona_muscular_id: zona_muscular_id || undefined

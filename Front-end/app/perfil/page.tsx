@@ -43,6 +43,7 @@ function toDateInputValue(value?: string | null): string {
 }
 
 export default function PerfilPage() {
+  // "Mis datos": trae el perfil del usuario logueado y deja editarlo
   const {
     myProfile,
     isLoadingMyProfile,
@@ -165,6 +166,7 @@ export default function PerfilPage() {
     const emailChanged = email !== originalEmail
     const passwordChanged = editingPassword && password.length > 0
 
+    // solo mando la credencial si cambió algo, así no piso la contraseña al pedo
     if (emailChanged || passwordChanged) {
       updateData.credencial = {}
       if (emailChanged) {
@@ -214,6 +216,7 @@ export default function PerfilPage() {
 
         <div className="w-full max-w-4xl px-4 py-4 mx-auto flex justify-center">
           <div className="w-full h-auto rounded-[24px] bg-white border-2 border-yellow-300 p-5 sm:p-6 shadow-[0_12px_40px_rgba(22,66,128,0.08)]">
+            {/* primero el loading, después el error y si no el formulario */}
             {showLoading ? (
               <p className="text-center text-xl text-[#164280]">
                 Cargando perfil...
@@ -346,6 +349,7 @@ export default function PerfilPage() {
                         Contraseña
                       </label>
                       <div className="relative">
+                        {/* el ojito cambia el type del input, no hace falta otro campo */}
                         <input
                           type={showPassword ? "text" : "password"}
                           id="password"
@@ -402,6 +406,7 @@ export default function PerfilPage() {
                   )}
 
                   <div className="flex justify-center items-center mt-4 pt-2">
+                    {/* mientras guarda el botón queda deshabilitado */}
                     <button
                       type="submit"
                       className="rounded-xl bg-[#164280] px-6 py-2.5 text-white font-medium hover:bg-[#0f2d57] transition-colors shadow-md disabled:opacity-50"

@@ -5,6 +5,7 @@ import { CreateVideoDto } from '../types/videos.types';
 import { createVideo, deleteVideo, editVideo } from '../api/videos.api';
 
 interface AdminVideoState extends BaseVideoState {
+  // flags separados para saber qué operación está en curso
   creating: boolean;
   updating: boolean;
   deleting: boolean;
@@ -29,6 +30,7 @@ const initialAdminState: AdminVideoState = {
 };
 
 // Crear acciones adicionales de admin
+// reusamos las acciones base y le sumamos el ABM de videos
 const createAdminVideoActions = (set: any, get: any) => ({
   ...createBaseVideoActions(set, get), 
   
@@ -39,6 +41,7 @@ const createAdminVideoActions = (set: any, get: any) => ({
       const updatedVideo = await editVideo(id, infoVideo);
       
       
+      // en vez de recargar todo, reemplazamos el video en la lista que ya tenemos
       const currentVideos = get().videos;
       const updatedVideos = currentVideos.map((video: any) => 
         video.id === id ? updatedVideo : video
@@ -67,6 +70,7 @@ const createAdminVideoActions = (set: any, get: any) => ({
       const newVideo = await createVideo(videoData);
       
       
+      // lo ponemos primero así aparece arriba de todo en la tabla
       const currentVideos = get().videos;
       set({ 
         videos: [newVideo, ...currentVideos],
@@ -90,7 +94,7 @@ const createAdminVideoActions = (set: any, get: any) => ({
     try {
       await deleteVideo(id);
       
-     
+      // si el video borrado era el que se estaba viendo, limpiamos currentVideo
       const currentVideos = get().videos;
       const filteredVideos = currentVideos.filter((video: any) => video.id !== id);
       
@@ -124,6 +128,7 @@ const createAdminVideoActions = (set: any, get: any) => ({
 });
 
 // Store de admin que extiende el base
+// no tiene persist, así que la lista se vuelve a pedir al entrar a la pantalla
 export const useVideoAdminStore = create<AdminVideoState & AdminVideoActions>((set, get) => ({
   ...initialAdminState,
   ...createAdminVideoActions(set, get),

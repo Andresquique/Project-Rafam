@@ -1,3 +1,5 @@
+// Fila de la tabla de usuarios del panel de admin.
+// Recibe un usuario y dos callbacks: uno para editar y otro para eliminar.
 'use client'
 
 import { Pencil, FileX, UserRound } from 'lucide-react'
@@ -18,11 +20,13 @@ export function UserAdminRow({ user, onEdit, onDelete }: UserAdminRowProps) {
 
       <div className="flex flex-1 flex-wrap items-center gap-x-8 gap-y-1">
         <span className="font-bold text-foreground">Nombre: {user.nombre || 'Sin nombre'}</span>
+        {/* el email viene dentro de credencial, por eso el optional chaining */}
         <span className="font-bold text-foreground">Mail: {user.credencial?.email || '—'}</span>
         <span className="font-bold text-foreground">Rol: {user.rol}</span>
       </div>
 
       <div className="flex items-center gap-2">
+        {/* editar avisa a la página con el usuario entero para abrir el modal ya cargado */}
         <button
           aria-label={`Editar ${user.nombre || 'usuario'}`}
           onClick={() => onEdit(user)}
@@ -30,6 +34,7 @@ export function UserAdminRow({ user, onEdit, onDelete }: UserAdminRowProps) {
         >
           <Pencil className="h-5 w-5" />
         </button>
+        {/* para borrar paso credencialesId, que es el id que usa la API */}
         <button
           aria-label={`Eliminar ${user.nombre || 'usuario'}`}
           onClick={() => onDelete(user.credencialesId)}

@@ -1,4 +1,6 @@
-
+// Modal para editar un usuario desde el panel de admin.
+// Recibe el usuario seleccionado, si está abierto, la función para cerrarlo y onSave,
+// que es la que hace el PUT desde la página de administración.
 'use client'
 
 import { useEffect, useState, FormEvent } from 'react'
@@ -15,13 +17,17 @@ interface EditUserModalProps {
 }
 
 export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModalProps) {
+  // estado del formulario, estos son los campos que se editan
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
   const [rol, setRol] = useState('user')
 
+  // acá guardo los mensajitos de error de cada input
   const [nombreError, setNombreError] = useState('')
   const [emailError, setEmailError] = useState('')
 
+  // cuando cambia el usuario cargo los datos en los inputs; si no hay usuario los limpio
+  // para no arrastrar lo del usuario anterior
   useEffect(() => {
     if (user) {
       setNombre(user.nombre || '')
@@ -37,8 +43,10 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
     setEmailError('')
   }, [user])
 
+  // si está cerrado no renderizo nada, así no queda un overlay invisible tapando la página
   if (!open) return null
 
+  // validación simple: nombre obligatorio y email con formato mail
   const validateNombre = (value: string) =>
     !value.trim() ? 'El nombre es obligatorio.' : ''
 
@@ -51,6 +59,7 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
     return ''
   }
 
+  // submit del form: primero valido y recién entonces llamo a onSave
   const handleSave = (e: FormEvent) => {
     e.preventDefault()
     if (!user) return
@@ -63,6 +72,7 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
 
     if (newNombreError || newEmailError) return
 
+    // el back espera el id de credenciales, no el id del perfil
     onSave(user.credencialesId, {
       nombre,
       credencial: { email },
@@ -73,6 +83,7 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
     'w-full rounded-full border-2 border-rafam-blue bg-card px-5 py-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-rafam-blue/40'
 
   return (
+    // fondo oscuro que cubre la pantalla; este modal se cierra con la X o con Cancelar, no afuera
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md">
         <form
@@ -153,6 +164,7 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
                 Rol
               </label>
 
+              {/* pendiente: el rol se muestra pero todavía no se manda al guardar */}
               <select
                 id="edit-rol"
                 value={rol}

@@ -1,5 +1,6 @@
 //Servicio API para la gestión de perfiles de usuario por parte del administrador.
 
+// todas estas rutas van con /admin adelante, así el back las protege por rol
 import apiClient from './axios.client';
 import { PerfilAdmin, UpdatePerfilAdminDto, FilterPerfilesAdminDto } from '../types/perfilAdmin.types';
 
@@ -7,6 +8,7 @@ export const perfilAdminApi = {
   
   // Función para obtener todos los perfiles de administrador, con filtros opcionales.
   // Realiza una petición GET a '/admin/perfil'.
+  // los filtros viajan como query params, axios los arma solo con params
   fetchAllPerfiles: async (query?: FilterPerfilesAdminDto): Promise<PerfilAdmin[]> => {
     const response = await apiClient.get<PerfilAdmin[]>('/admin/perfil', { params: query });
     return response.data;

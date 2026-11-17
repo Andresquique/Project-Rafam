@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react"
 import { RafamHeader } from "@/components/rafam-header"
 
 export default function Aviso2Page() {
+  // este aviso aparece cuando el usuario todavía no hizo el examen físico
   return (
     <main className="flex min-h-screen flex-col items-center bg-background">
       <div className="flex w-full justify-center">
@@ -11,6 +12,7 @@ export default function Aviso2Page() {
 
       <section className="mx-auto w-full max-w-3xl px-6 pb-10">
         <div className="flex flex-col items-center rounded-xl border-2 border-rafam-yellow bg-card px-8 py-12 sm:px-12">
+          {/* el triángulo de advertencia está armado con un div de fondo naranja */}
           <span
             className="flex h-40 w-40 items-center justify-center rounded-3xl bg-[oklch(0.7_0.19_50)] text-primary-foreground"
             aria-hidden="true"
@@ -28,6 +30,7 @@ export default function Aviso2Page() {
         </div>
 
         <div className="mt-8 flex justify-center">
+          {/* por ahora continúa al catálogo; el examen se toma desde /formulario */}
           <Link
             href="/video"
             className="rounded-lg bg-rafam-blue px-16 py-4 text-2xl font-bold text-rafam-yellow transition-colors hover:bg-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"

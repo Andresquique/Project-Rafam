@@ -1,3 +1,5 @@
+// Formulario de login. Maneja email y contraseña en estado local,
+// usa el store de auth para loguearse y después redirige según el rol.
 "use client"
 
 import type React from "react"
@@ -9,12 +11,14 @@ export function LoginForm() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  // del store saco la acción de login y los estados de carga y error
   const { login, isLoading, error } = useAuthStore()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     try {
       await login({ email, password })
+      // leo el usuario ya actualizado del store para saber a dónde mandarlo
       const { user } = useAuthStore.getState()
       if (user?.rol === 'admin' || user?.rol === 'Administrador') {
         router.push('/admin')
@@ -28,6 +32,7 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-sm flex-col gap-5">
+      {/* si el store tiene un error lo muestro arriba de todo */}
       {error && (
         <div className="rounded-lg bg-destructive/10 px-4 py-3 text-center text-sm font-semibold text-destructive">
           {error}
@@ -65,6 +70,7 @@ export function LoginForm() {
         />
       </div>
 
+      {/* mientras carga deshabilito el botón para que no se mande dos veces */}
       <button
         type="submit"
         disabled={isLoading}

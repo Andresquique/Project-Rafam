@@ -1,4 +1,5 @@
 // src/api/auth.api.ts
+// estas funciones son las que pegan contra los endpoints de auth del back
 import apiClient from './axios.client';
 import {
   LoginDto,
@@ -18,6 +19,7 @@ export const authApi = {
 
   // Función para iniciar sesión de un usuario.
   // Realiza una petición POST a '/auth/login' con las credenciales del usuario.
+  // el back devuelve el access_token y con eso el store después pide el perfil
   login: async (credentials: LoginDto): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
     return response.data;
@@ -39,6 +41,7 @@ export const authApi = {
 
   // Función para cerrar la sesión del usuario.
   // Actualmente solo imprime un mensaje en la consola.
+  // el logout de verdad lo termina haciendo el store, acá no se llama al back
   logout: async (): Promise<void> => {
     console.log('logout action');
   },

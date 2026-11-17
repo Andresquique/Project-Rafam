@@ -4,10 +4,12 @@ import { PerfilAdmin, UpdatePerfilAdminDto, FilterPerfilesAdminDto } from '../ty
 import { perfilAdminApi } from '../api/perfilAdmin.api';
 
 interface PerfilAdminState {
+  // lista de perfiles que se muestra en la tabla
   perfiles: PerfilAdmin[];
   isLoadingPerfiles: boolean;
   perfilesError: string | null;
 
+  // paginación y filtros que se mandan al back
   currentPage: number;
   totalPerfiles: number;
   limit: number;
@@ -23,6 +25,7 @@ interface PerfilAdminState {
   clearFilters: () => Promise<void>; // Nueva función para limpiar filtros
 }
 
+// este store no usa persist, así que la tabla arranca vacía cada vez que se recarga
 export const usePerfilAdminStore = create<PerfilAdminState>((set, get) => ({
   perfiles: [],
   isLoadingPerfiles: false,
@@ -68,6 +71,7 @@ export const usePerfilAdminStore = create<PerfilAdminState>((set, get) => ({
     try {
       const updatedPerfil = await perfilAdminApi.updatePerfil(id, data);
       set((state) => ({
+        // acá comparo contra credencialesId porque el id que llega es el de la credencial
         perfiles: state.perfiles.map((p) => (p.credencialesId === id ? updatedPerfil : p)),
         isLoadingPerfiles: false,
       }));
@@ -85,6 +89,7 @@ export const usePerfilAdminStore = create<PerfilAdminState>((set, get) => ({
     try {
       await perfilAdminApi.deletePerfil(id);
       set((state) => ({
+        // sacamos el perfil de la lista sin volver a pedir todo de nuevo
         perfiles: state.perfiles.filter((p) => p.credencialesId !== id),
         isLoadingPerfiles: false,
         totalPerfiles: Math.max(0, state.totalPerfiles - 1) // Actualizar total
@@ -98,6 +103,7 @@ export const usePerfilAdminStore = create<PerfilAdminState>((set, get) => ({
   },
 
   setFilters: async (filters: FilterPerfilesAdminDto) => {
+    // si no mandan página o límite, arrancamos en la 1 y usamos el limit del store
     const newFilters = { ...filters, page: filters.page || 1, limit: filters.limit || get().limit };
     set({ 
       filters: newFilters, 
