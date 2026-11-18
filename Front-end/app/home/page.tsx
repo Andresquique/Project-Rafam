@@ -18,26 +18,9 @@ export default function HomePage() {
 
   // aviso para mostrar cuando todavía no puede tomar el examen (por ejemplo, antes de los 30 días)
   const [avisoOpen, setAvisoOpen] = useState(false)
-  const [avisoTitulo, setAvisoTitulo] = useState("")
   const [avisoMensaje, setAvisoMensaje] = useState("")
 
   const cerrarAviso = () => setAvisoOpen(false)
-
-  const { getExamenNuevoUsuario, } = usePerfilUserStore();
-  
-  const intentarVerVideos = async () => {
-    try{
-      await getExamenNuevoUsuario(user)
-      router.push("/video")
-    }
-    catch(error : any){
-      console.log("no tomo formulario ", error)
-
-      setAvisoTitulo("Debe realizar el examen físico")
-      setAvisoMensaje("Todavía no realizaste el examen físico. Debés completarlo para continuar.")
-      setAvisoOpen(true)
-    }
-  };
 
   // antes de entrar al formulario pregunto si está habilitado; si no, muestro el motivo
   const intentarTomarExamen = async () => {
@@ -47,7 +30,6 @@ export default function HomePage() {
     } catch (error: any) {
       console.log("error examen fisico: ", error)
 
-      setAvisoTitulo("No se puede realizar el examen")
       setAvisoMensaje(error.message)
       setAvisoOpen(true)
     }
@@ -73,9 +55,9 @@ export default function HomePage() {
             <span className="text-2xl font-bold">Tomar examen</span>
           </button>
 
-          <button
-            onClick={intentarVerVideos}
-            className="flex flex-col items-center gap-4 rounded-lg py-4 text-rafam-blue transition-colors hover:text-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40 cursor-pointer"
+          <Link
+            href="/video"
+            className="flex flex-col items-center gap-4 rounded-lg py-4 text-rafam-blue transition-colors hover:text-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"
           >
             <Tv
               className="h-16 w-16"
@@ -83,7 +65,7 @@ export default function HomePage() {
               aria-hidden="true"
             />
             <span className="text-2xl font-bold">Ver videos</span>
-          </button>
+          </Link>
 
           <Link
             href="/perfil"
@@ -112,7 +94,7 @@ export default function HomePage() {
       <Aviso
         isOpen={avisoOpen}
         onClose={cerrarAviso}
-        title={avisoTitulo}
+        title="No se puede realizar el examen"
         message={avisoMensaje}
       />
 
