@@ -68,12 +68,13 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
   return (
     // este se cierra con Escape o con el botón Cerrar, el click afuera no hace nada
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-4 py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="video-player-title"
     >
-      <section className="relative mx-auto w-full max-w-4xl">
+      {/* my-auto centra el reproductor cuando hay lugar, si no deja bajar con scroll */}
+      <section className="relative mx-auto my-auto w-full max-w-4xl">
         <div className="rounded-xl border-2 border-rafam-yellow bg-card p-4 shadow-[0_12px_40px_rgba(22,66,128,0.18)] sm:p-6">
           <h2
             id="video-player-title"

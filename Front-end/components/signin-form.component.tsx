@@ -98,14 +98,15 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
   return (
     // todo el fondo blanco; el click afuera cierra el modal
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-white px-6 py-10"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-white px-6 py-10"
       role="dialog"
       aria-modal="true"
       onClick={handleClose}
     >
       {/* esto lo saqué de la documentación: evita que el click dentro cierre el modal */}
+      {/* my-auto centra el cartel si entra, y si no deja scrollear desde arriba */}
       <section
-        className="relative mx-auto w-full max-w-3xl"
+        className="relative mx-auto my-auto w-full max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <form onSubmit={handleSubmit} data-testid="form-signin">

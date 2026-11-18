@@ -25,14 +25,15 @@ export default function Aviso({
   return (
     // ojo que hacé click en cualquier lado del fondo y se cierra
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white px-6"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-white px-6 py-10"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       {/* freno la propagación para que tocar el cartel no lo cierre */}
+      {/* my-auto centra si entra, si no se puede scrollear desde arriba */}
       <section
-        className="relative mx-auto w-full max-w-3xl"
+        className="relative mx-auto my-auto w-full max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center rounded-xl border-2 border-rafam-yellow bg-card px-8 py-12 sm:px-12">

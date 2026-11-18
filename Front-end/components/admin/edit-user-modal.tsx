@@ -84,8 +84,9 @@ export function EditUserModal({ user, open, onOpenChange, onSave }: EditUserModa
 
   return (
     // fondo oscuro que cubre la pantalla; este modal se cierra con la X o con Cancelar, no afuera
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4">
+      {/* my-auto centra el modal si entra, y si es más alto que la pantalla lo deja scrollear */}
+      <div className="my-auto w-full max-w-md">
         <form
           onSubmit={handleSave}
           className="relative rounded-[24px] border-2 border-yellow-300 bg-white p-5 shadow-[0_12px_40px_rgba(22,66,128,0.08)] sm:p-6"

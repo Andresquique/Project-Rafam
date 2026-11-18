@@ -36,6 +36,17 @@ export const getVideos = async (filters?: FilterVideoDto): Promise<Video[]> => {
   }
 };
 
+// este endpoint devuelve todos los videos, sin filtrar por nivel; lo usa el admin
+export const getAllVideos = async (): Promise<Video[]> => {
+  try {
+    const response = await axiosClient.get<Video[]>('admin' + VIDEO_BASE_URL);
+    return response.data;
+  } catch (error) {
+    console.error('Error al buscar todos los videos:', error);
+    throw error;
+  }
+};
+
 // Obtener un video específico por ID
 export const getVideoById = async (id: number): Promise<Video> => {
   try {
