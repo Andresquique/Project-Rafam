@@ -26,7 +26,7 @@ model Credencial {
 
 model PasswordResetToken {
   id        Int      @id @default(autoincrement())
-  token     String   @unique
+  tokenHash String   @unique
   userId    Int
   expiresAt DateTime
   used      Boolean  @default(false)

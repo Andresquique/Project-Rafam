@@ -12,7 +12,9 @@ import { JwtAuthGuard } from '../../src/auth/jwt/jwt.guard';
 import { JwtPayload } from '../../src/auth/jwt/jwt.payload';
 import { CurrentUser } from '../../src/auth/jwt/decorator/current-user.decorator';
 import { Perfil } from '@prisma/client';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('jwt-auth')
 @Controller('perfil')
 @UseGuards(JwtAuthGuard)
 export class PerfilController {
