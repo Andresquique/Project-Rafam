@@ -21,7 +21,7 @@ export class MailService {
       this.configService.get<string>('MAIL_FROM') ?? 'onboarding@resend.dev';
 
     this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:4000';
+      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
