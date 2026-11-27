@@ -12,32 +12,40 @@ import { PageTitleBand } from '@/components/admin/page-title-band'
 import { UserAdminRow } from '@/components/admin/user-admin-row'
 import { EditUserModal } from '@/components/admin/edit-user-modal'
 
+// las columnas por las que se puede ordenar la tabla
 type SortKey = 'nombre' | 'email' | 'rol'
 
 export default function AdminUsuariosPage() {
   const router = useRouter()
+  // de auth saco el usuario logueado y si ya terminó de inicializar la sesión
   const { user, isAuthenticated, isInitialized } = useAuthStore()
+  // el store de admin ya trae los perfiles y las acciones de ABM
   const { perfiles, isLoadingPerfiles, fetchAllPerfiles, updatePerfil, deletePerfil } = usePerfilAdminStore()
 
+  // search es lo que se escribe y query lo que realmente se filtra (recién al apretar Buscar o Enter)
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('nombre')
 
+  // editing guarda el usuario que se está por editar y modalOpen controla el modal
   const [editing, setEditing] = useState<PerfilAdmin | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
+  // protección de la ruta: si no sos admin te manda de vuelta al login
   useEffect(() => {
     if (isInitialized && (!isAuthenticated || (user?.rol !== 'admin' && user?.rol !== 'Administrador'))) {
       router.push('/')
     }
   }, [isInitialized, isAuthenticated, user, router])
 
+  // recién cuando hay sesión válida pedimos todos los perfiles al backend
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
       fetchAllPerfiles()
     }
   }, [isInitialized, isAuthenticated])
 
+  // filtro y orden los resuelvo en el cliente, así no vuelvo a pegarle a la API por cada tecla
   const visible = useMemo(() => {
     const filtered = perfiles.filter((u) => {
       if (!query) return true
@@ -60,11 +68,13 @@ export default function AdminUsuariosPage() {
     })
   }, [perfiles, query, sortKey])
 
+  // abro el modal con el usuario seleccionado ya cargado
   const openEdit = (user: PerfilAdmin) => {
     setEditing(user)
     setModalOpen(true)
   }
 
+  // si guarda bien cierro el modal; si falla el store ya se encarga del error
   const handleSave = async (id: number, data: UpdatePerfilAdminDto) => {
     try {
       await updatePerfil(id, data)
@@ -75,19 +85,23 @@ export default function AdminUsuariosPage() {
     }
   }
 
+  // confirmación rápida antes de borrar, por las dudas
   const handleDelete = async (id: number) => {
     if (window.confirm('¿Estás seguro de eliminar este usuario?')) {
       await deletePerfil(id)
     }
   }
 
+  // limpio los dos estados porque si no queda el filtro anterior aplicado
   const clearSearch = () => {
     setSearch('')
     setQuery('')
   }
 
+  // mientras no sepamos si hay sesión no mostramos nada así no parpadea la pantalla
   if (!isInitialized || !isAuthenticated) return null
 
+  // devuelvo las clases según cuál orden está activo
   const sortButton = (active: boolean) =>
     `font-bold transition-colors ${active ? 'text-rafam-blue underline' : 'text-rafam-blue/70 hover:text-rafam-blue'}`
 
@@ -106,6 +120,7 @@ export default function AdminUsuariosPage() {
       <PageTitleBand title="Edicion de usuarios" />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-6">
+        {/* buscador: Enter también dispara la búsqueda sin tocar el botón */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[220px] flex-1">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-rafam-blue" />
@@ -134,6 +149,7 @@ export default function AdminUsuariosPage() {
         </div>
 
         <div className="rounded-lg border-2 border-rafam-yellow p-5">
+          {/* botones para cambiar el criterio de orden */}
           <div className="mb-4 flex flex-wrap items-center gap-4">
             <span className="text-lg font-extrabold text-foreground">Ordenar:</span>
             <button onClick={() => setSortKey('nombre')} className={sortButton(sortKey === 'nombre')}>
@@ -148,6 +164,7 @@ export default function AdminUsuariosPage() {
           </div>
 
           <div className="space-y-3">
+            {/* tres estados posibles: cargando, sin resultados o la lista */}
             {isLoadingPerfiles ? (
               <p className="py-10 text-center text-muted-foreground">Cargando usuarios...</p>
             ) : visible.length === 0 ? (
@@ -170,6 +187,7 @@ export default function AdminUsuariosPage() {
         </div>
       </main>
 
+      {/* el modal recibe el usuario en edición y avisa cuando se cierra */}
       <EditUserModal user={editing} open={modalOpen} onOpenChange={setModalOpen} onSave={handleSave} />
 
       <footer className="mt-auto bg-rafam-lightblue">

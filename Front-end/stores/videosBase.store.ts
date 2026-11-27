@@ -1,14 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // stores/base/videoBase.store.ts
-import { getVideos, getVideoById } from '../api/videos.api';
+// acá está todo lo que comparten el store de admin y el de usuario
+import { getVideos, getAllVideos, getVideoById } from '../api/videos.api';
 import { Video, FilterVideoDto } from '../types/videos.types';
+import { useAuthStore } from './auth.store';
+
+// cuando el admin ve el catálogo traigo todos los videos y aplico los filtros acá,
+// porque el endpoint normal siempre filtra por el nivel físico del usuario
+function aplicarFiltros(videos: Video[], filters: FilterVideoDto): Video[] {
+  return videos.filter((video) => {
+    if (filters.nivel_id && video.nivel_id !== filters.nivel_id) return false;
+    if (filters.zona_muscular_id && video.zona_muscular_id !== filters.zona_muscular_id) return false;
+    if (filters.nombre && !video.nombre.toLowerCase().includes(filters.nombre.toLowerCase())) return false;
+    if (filters.descripcion && !video.descripcion.toLowerCase().includes(filters.descripcion.toLowerCase())) return false;
+    return true;
+  });
+}
 
 // Estado base compartido
 export interface BaseVideoState {
   videos: Video[];
+  // el video abierto en el detalle, null si no hay ninguno
   currentVideo: Video | null;
   loading: boolean;
   error: string | null;
+  // filtros activos, se mandan tal cual a la api
   filters: FilterVideoDto;
 }
 
@@ -39,8 +55,13 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   fetchVideos: async (filters?: FilterVideoDto) => {
     set({ loading: true, error: null });
     try {
+      // si no le pasan filtros, usa los que ya están guardados en el store
       const filtersToUse = filters || get().filters;
-      const fetchedVideos = await getVideos(filtersToUse);
+      // acá tuve que arreglar un bug: el admin no veía los videos de niveles superiores
+      const esAdmin = useAuthStore.getState().user?.rol === 'admin';
+      const fetchedVideos = esAdmin
+        ? aplicarFiltros(await getAllVideos(), filtersToUse)
+        : await getVideos(filtersToUse);
       set({ 
         videos: fetchedVideos, 
         loading: false,
@@ -83,6 +104,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   searchVideos: async (searchTerm: string) => {
+    // busca en nombre y descripción a la vez, manteniendo los otros filtros
     const filters: FilterVideoDto = {
       ...get().filters,
       nombre: searchTerm || undefined,
@@ -92,6 +114,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   filterByLevel: async (nivel_id?: number) => {
+    // si llega undefined (o sea "todos"), el filtro se saca
     const filters: FilterVideoDto = {
       ...get().filters,
       nivel_id: nivel_id || undefined
@@ -101,6 +124,7 @@ export const createBaseVideoActions = (set: any, get: any): BaseVideoActions => 
   },
 
   filterByZone: async (zona_muscular_id?: number) => {
+    // mismo criterio que filterByLevel pero para la zona muscular
     const filters: FilterVideoDto = {
       ...get().filters,
       zona_muscular_id: zona_muscular_id || undefined

@@ -15,13 +15,16 @@ export default function Page() {
   const router = useRouter()
   const { register, forgotPassword } = useAuthStore()
 
+  // controla el modal de "Crear cuenta"
   const [crearCuentaOpen, setCrearCuentaOpen] = useState(false)
   const [recuperarOpen, setRecuperarOpen] = useState(false)
   const [avisoOpen, setAvisoOpen] = useState(false)
   const [avisoMensaje, setAvisoMensaje] = useState("")
   const [avisoTitulo, setAvisoTitulo] = useState("Crear Cuenta")
+  // me sirve para saber si al cerrar el aviso tengo que mandarlo al home
   const [registroExitoso, setRegistroExitoso] = useState(false)
 
+  // lo llama el modal de registro con los datos del formulario
   const handleCrearCuenta = async (data: RegisterDto): Promise<void> => {
     try {
       const resultado = await register(data)
@@ -31,6 +34,7 @@ export default function Page() {
       setRegistroExitoso(true)
       setAvisoOpen(true)
     } catch (error: any) {
+      // si algo sale mal muestro el mensaje del backend y vuelvo a lanzar el error
       setAvisoTitulo("Error al crear la cuenta")
       setAvisoMensaje(error?.message ?? "No se pudo crear la cuenta.")
       setRegistroExitoso(false)
@@ -83,12 +87,14 @@ export default function Page() {
       </div>
 
       <section className="px-6 py-10">
+        {/* el formulario de login ya maneja solo el submit y el redirect según el rol */}
         <LoginForm />
       </section>
 
       <div className="h-1.5 w-full bg-rafam-yellow" aria-hidden="true" />
 
       <section className="grid flex-1 grid-cols-1 gap-10 px-6 py-12 sm:grid-cols-2">
+        {/* crear cuenta abre el modal de registro */}
         <div className="flex flex-col items-center gap-5">
           <h2 className="text-2xl font-bold text-rafam-blue">¿No tenes cuenta?</h2>
           <button
@@ -101,6 +107,7 @@ export default function Page() {
         </div>
         <div className="flex flex-col items-center gap-5">
           <h2 className="text-2xl font-bold text-rafam-blue">¿Olvidaste tu contraseña?</h2>
+          {/* pendiente: recuperar contraseña todavía no está implementado, es solo un ancla */}
           
           <button
             type="button"
@@ -114,6 +121,7 @@ export default function Page() {
 
       <SiteFooter />
 
+      {/* modal para registrarse; al enviar llama a handleCrearCuenta */}
       <SignInComponent
         isOpen={crearCuentaOpen}
         onClose={() => setCrearCuentaOpen(false)}

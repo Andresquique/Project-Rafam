@@ -12,6 +12,7 @@ export interface PerfilUserNivel {
 }
 
 // Interfaz para el objeto Perfil completo
+// es casi igual a PerfilAdmin, cambia el nombre nada más
 export interface PerfilUser {
   id: number; 
   nombre: string | null;
@@ -31,6 +32,7 @@ export interface UpdateUserCredencialDto {
 }
 
 // DTO para actualizar el perfil del usuario
+// mandamos solo los campos que se tocaron en el formulario
 export interface UpdatePerfilUserDto {
   nombre?: string;
   fecha_nacimiento?: string; 

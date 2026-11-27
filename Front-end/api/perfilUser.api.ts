@@ -1,5 +1,6 @@
 //Servicio API para la interacción con el perfil del usuario autenticado.
 
+// estas rutas no llevan id porque el back saca el usuario del token
 import { UserPayload } from '@/types/auth.types';
 import { PerfilUser, UpdatePerfilUserDto } from '../types/perfilUser.types';
 import apiClient from './axios.client';
@@ -28,6 +29,7 @@ export const perfilUserApi = {
   
   // Función para obtener la fecha del examen de un usuario.
   // Realiza una petición GET a '/examen' con los parámetros del usuario.
+  // el retorno es void porque acá no usamos la respuesta, solo nos importa que el back responda
   getExamDate: async (user: UserPayload | null): Promise<void | null> => {
     await apiClient.get<void>('/examen', { params: user });
   },

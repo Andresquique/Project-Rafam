@@ -5,10 +5,12 @@ import { perfilUserApi } from '../api/perfilUser.api';
 import { UserPayload } from '@/types/auth.types';
 
 interface PerfilUserState {
+  // perfil del usuario logueado, se pide con el token así que no hace falta pasar id
   myProfile: PerfilUser | null;
   isLoadingMyProfile: boolean;
   myProfileError: string | null;
 
+  // estas dos solo disparan la validación del examen en el back, no guardan nada acá
   getExamenFecha: (user: UserPayload | null) => Promise<void>
   getExamenNuevoUsuario: (user: UserPayload | null) => Promise<void>
   fetchMyProfile: () => Promise<void>;
@@ -20,10 +22,10 @@ export const usePerfilUserStore = create<PerfilUserState>((set) => ({
   myProfile: null,
   isLoadingMyProfile: false,
   myProfileError: null,
-
   fetchMyProfile: async () => {
     set({ isLoadingMyProfile: true, myProfileError: null });
     try {
+      // el back devuelve el perfil completo con credencial y nivel incluidos
       const profile = await perfilUserApi.fetchMyProfile();
       set({ myProfile: profile, isLoadingMyProfile: false });
     } catch (error: any) {
@@ -49,6 +51,7 @@ export const usePerfilUserStore = create<PerfilUserState>((set) => ({
   try {
     await perfilUserApi.deleteMyProfile();
     set({ myProfile: null, isLoadingMyProfile: false });
+    // acá usé un alert rápido nomás, pendiente: cambiarlo por un toast lindo
     window.alert('Perfil eliminado con éxito.');
   } catch (error: any) {
     const errorMsg = error.message || error.response?.data?.message || 'Error inesperado al eliminar perfil';
@@ -58,6 +61,7 @@ export const usePerfilUserStore = create<PerfilUserState>((set) => ({
 },
   
   getExamenFecha: async (user: UserPayload | null) => {
+    // solo llamamos al endpoint, si el back tira error lo propagamos al componente
     try {
       await perfilUserApi.getExamDate(user);
     } 

@@ -1,6 +1,10 @@
+// Aviso grande a pantalla completa que le aparece al usuario cuando todavía
+// no hizo el examen físico. Recibe si está abierto, la función para cerrarlo
+// y opcionalmente un título y un mensaje (si no vienen, usa los de por defecto).
 "use client"
 
 import { AlertTriangle, X } from "lucide-react"
+// el X quedó importado de antes, ahora el cierre es con el botón de abajo
 
 interface AvisoProps {
   isOpen: boolean
@@ -15,17 +19,21 @@ export default function Aviso({
   title = "Falta realizar examen fisico.",
   message = "Para poder mostrarle ejercicios adecuados a su estado fisico debera tomar el examen de aptitud fisica.",
 }: AvisoProps) {
+  // si está cerrado no dibujo nada
   if (!isOpen) return null
 
   return (
+    // ojo que hacé click en cualquier lado del fondo y se cierra
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white px-6"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-white px-6 py-10"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
+      {/* freno la propagación para que tocar el cartel no lo cierre */}
+      {/* my-auto centra si entra, si no se puede scrollear desde arriba */}
       <section
-        className="relative mx-auto w-full max-w-3xl"
+        className="relative mx-auto my-auto w-full max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center rounded-xl border-2 border-rafam-yellow bg-card px-8 py-12 sm:px-12">
@@ -52,6 +60,7 @@ export default function Aviso({
         </div>
         
         <div className="mt-8 flex justify-center">
+          {/* el botón y el click en el fondo hacen lo mismo: llaman a onClose */}
           <button
             onClick={onClose}
             className="rounded-lg bg-rafam-blue px-16 py-4 text-2xl font-bold text-rafam-yellow transition-colors hover:bg-rafam-blue-dark focus:outline-none focus:ring-2 focus:ring-rafam-blue/40"

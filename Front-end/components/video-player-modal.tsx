@@ -1,3 +1,5 @@
+// Modal reproductor de video. Sirve tanto para links de YouTube/Vimeo como para
+// archivos directos. Recibe open, el título, la url y onClose.
 "use client"
 
 import { useEffect, useRef } from "react"
@@ -12,9 +14,13 @@ interface VideoPlayerModalProps {
 }
 
 export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModalProps) {
+  // ref al contenedor del video, la necesito para pedir pantalla completa
   const playerRef = useRef<HTMLDivElement>(null)
+  // esto me dice si la url es youtube, vimeo, un archivo o si no se puede reproducir
   const playable = getPlayableVideo(url)
 
+  // con el modal abierto escucho Escape: si estoy en pantalla completa salgo de eso,
+  // si no, cierro el modal
   useEffect(() => {
     if (!open) return
 
@@ -31,6 +37,8 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [open, onClose])
 
+  // mientras el modal está abierto bloqueo el scroll del body,
+  // y cuando se cierra lo devuelvo a como estaba
   useEffect(() => {
     if (!open) return
     const previousOverflow = document.body.style.overflow
@@ -42,6 +50,7 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
 
   if (!open) return null
 
+  // pregunto si ya hay algo en fullscreen para saber si entro o salgo
   const toggleFullscreen = async () => {
     const el = playerRef.current
     if (!el) return
@@ -57,13 +66,15 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
   }
 
   return (
+    // este se cierra con Escape o con el botón Cerrar, el click afuera no hace nada
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-4 py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="video-player-title"
     >
-      <section className="relative mx-auto w-full max-w-4xl">
+      {/* my-auto centra el reproductor cuando hay lugar, si no deja bajar con scroll */}
+      <section className="relative mx-auto my-auto w-full max-w-4xl">
         <div className="rounded-xl border-2 border-rafam-yellow bg-card p-4 shadow-[0_12px_40px_rgba(22,66,128,0.18)] sm:p-6">
           <h2
             id="video-player-title"
@@ -77,6 +88,7 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
             className="relative aspect-video w-full overflow-hidden rounded-md bg-black [&:fullscreen]:flex [&:fullscreen]:h-full [&:fullscreen]:w-full [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:rounded-none"
           >
             {playable.kind === "youtube" || playable.kind === "vimeo" ? (
+              // si es youtube o vimeo lo meto en un iframe con la url de embed
               <iframe
                 src={playable.embedUrl}
                 title={title}
@@ -85,6 +97,7 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
                 allowFullScreen
               />
             ) : playable.kind === "file" ? (
+              // si es un archivo de video común uso la etiqueta <video> con controles
               <video
                 src={playable.src}
                 className="h-full w-full"
@@ -93,6 +106,7 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
                 playsInline
               />
             ) : (
+              // si la url no es nada reconocible muestro este mensaje
               <p className="flex h-full items-center justify-center px-6 text-center text-lg font-semibold text-white">
                 Este ejercicio no tiene un video disponible para reproducir.
               </p>
@@ -101,6 +115,7 @@ export function VideoPlayerModal({ open, title, url, onClose }: VideoPlayerModal
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          {/* el botón de pantalla completa solo aparece si hay algo para reproducir */}
           {playable.kind !== "unavailable" && (
             <button
               type="button"

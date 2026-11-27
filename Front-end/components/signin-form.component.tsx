@@ -1,3 +1,6 @@
+// Formulario de registro de cuenta. Es un modal a pantalla completa.
+// Valida email y contraseña del lado del cliente, y si todo está bien
+// llama a onSubmit (que es el que crea el usuario en la API).
 "use client"
 
 import React, { useState, FormEvent } from "react";
@@ -11,18 +14,22 @@ interface SignInComponentProps {
 }
 
 function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
+  // datos del formulario y un error por cada campo
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>('');
+  // estos dos son para el ojito de mostrar/ocultar la contraseña
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  // modal cerrado, no renderizo nada
   if (!isOpen) return null;
 
+  // validaciones simples, devuelven string vacío si está todo bien
   const validateEmail = (email: string): string => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) return 'El email es obligatorio.';
@@ -43,6 +50,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
   };
 
   const resetForm = () => {
+    // dejo todo limpio cuando se cierra el modal o cuando el registro salió bien
     setEmail('');
     setPassword('');
     setConfirmPassword('');
@@ -54,6 +62,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
   };
 
   const handleClose = () => {
+    // cerrar siempre resetea, si no al volver a abrir quedan los datos viejos
     resetForm();
     onClose();
   };
@@ -61,6 +70,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    // corro las tres validaciones y guardo los mensajes en el estado
     const emailValidationMessage = validateEmail(email);
     const passwordValidationMessage = validatePassword(password);
     const confirmPasswordValidationMessage = validateConfirmPassword(password, confirmPassword);
@@ -75,6 +85,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
 
     try {
       setIsSubmitting(true);
+      // onSubmit es asíncrono, por eso espero y recién ahí limpio el form
       await onSubmit({ email, password });
       resetForm();
     } catch {
@@ -85,14 +96,17 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
   };
 
   return (
+    // todo el fondo blanco; el click afuera cierra el modal
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-white px-6 py-10"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-white px-6 py-10"
       role="dialog"
       aria-modal="true"
       onClick={handleClose}
     >
+      {/* esto lo saqué de la documentación: evita que el click dentro cierre el modal */}
+      {/* my-auto centra el cartel si entra, y si no deja scrollear desde arriba */}
       <section
-        className="relative mx-auto w-full max-w-3xl"
+        className="relative mx-auto my-auto w-full max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <form onSubmit={handleSubmit} data-testid="form-signin">
@@ -136,6 +150,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
                   Contraseña
                 </label>
                 <div className="relative">
+                  {/* el ojito cambia el type del input para mostrar u ocultar la clave */}
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
@@ -197,6 +212,7 @@ function SignInComponent({ isOpen, onClose, onSubmit }: SignInComponentProps) {
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
+            {/* los dos botones se deshabilitan mientras se está registrando */}
             <button
               type="button"
               onClick={handleClose}

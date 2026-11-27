@@ -1,3 +1,5 @@
+// Botón reutilizable para volver al home. No tiene lógica, es solo un Link
+// con los estilos que usamos en varias pantallas.
 import Link from "next/link";
 
 export function VolverPagPrincipal() {

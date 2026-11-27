@@ -1,4 +1,5 @@
 // src/api/credencial.api.ts
+// CRUD básico de credenciales, todo pasa por axios.client
 import apiClient from './axios.client';
 import { Credencial } from '../types/credencial.types';
 
@@ -20,6 +21,7 @@ export const credencialApi = {
 
   // Función para obtener una credencial por su email.
   // Realiza una petición GET a '/credencial/:email'.
+  // fijate que usa la misma ruta que getById, el back diferencia por el tipo de dato
   getByEmail: async (email: string): Promise<Credencial> => {
     const response = await apiClient.get<Credencial>(`/credencial/${email}`);
     return response.data;

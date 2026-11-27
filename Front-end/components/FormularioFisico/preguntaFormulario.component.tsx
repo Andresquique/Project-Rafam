@@ -1,3 +1,6 @@
+// Una pregunta del formulario físico con sus opciones de radio.
+// Recibe el nombre (que también se usa para buscar la imagen), el texto de la pregunta,
+// las opciones y un onChange que avisa al formulario qué se eligió.
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -21,8 +24,10 @@ export default function PreguntaFormulario({
   opciones,
   onChange,
 }: PreguntaFormularioProps) {
+  // este estado es para ocultar la imagen si el archivo no existe
   const [mostrarImagen, setMostrarImagen] = useState(true);
 
+  // cuando cambia la pregunta vuelvo a intentar mostrar la imagen
   useEffect(() => {
     setMostrarImagen(true);
   }, [nombre]);
@@ -32,6 +37,7 @@ export default function PreguntaFormulario({
       <div className="flex items-start gap-4">
         <div className="relative w-12 h-12 flex-shrink-0">
           {mostrarImagen && (
+            // busco la imagen por nombre dentro de public/formulario
             <Image
               src={`/formulario/${nombre}.png`}
               alt={nombre}
@@ -46,6 +52,7 @@ export default function PreguntaFormulario({
             {pregunta}
           </p>
           <div className="flex flex-col gap-2.5 items-start">
+            {/* el name es el mismo para todas las opciones, así el navegador las agrupa */}
             {opciones.map((opcion) => (
               <label
                 key={opcion.id}

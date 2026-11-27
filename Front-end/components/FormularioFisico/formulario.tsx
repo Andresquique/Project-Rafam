@@ -1,17 +1,22 @@
+// Formulario del examen físico (balance, velocidad de marcha y levantarse de la silla).
+// Va guardando las respuestas en un objeto y al final suma los puntos y se los pasa al padre.
 "use client";
 
 import PreguntaFormulario from "./preguntaFormulario.component";
 import { useState } from 'react';
 
 type FormularioProps = {
+  // el padre recibe el puntaje total, no las respuestas sueltas
   onSubmit: (puntuacion: number) => void;
 };
 
+// me aseguro de que el total nunca se vaya fuera del rango del test
 function clamp(valor: number, min: number, max: number) {
   return Math.min(Math.max(valor, min), max);
 }
 
 export function Formulario({ onSubmit }: FormularioProps) {
+  // sumo todos los valores de respuestas y los casteo a número porque vienen como string
   function calcularTotal() {
     const total = Object.values(respuestas).reduce(
       (suma, valor) => suma + Number(valor),
@@ -22,6 +27,8 @@ export function Formulario({ onSubmit }: FormularioProps) {
 
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
 
+  // acá está la lógica de las preguntas que dependen de la anterior:
+  // si una respuesta baja a 0, borro las que venían después para que no queden puntos de más
   function cambiaRadioButton(nombreBoton: string, valor: string) {
     setRespuestas((prev) => {
       const nuevas = {
@@ -43,9 +50,12 @@ export function Formulario({ onSubmit }: FormularioProps) {
   }
 
   function submitForm() {
+    // al enviar calculo el total y se lo paso al padre
     onSubmit(calcularTotal());
   }
 
+  // uso estas constantes como nombre de cada pregunta para no escribir strings sueltos
+  // y que coincidan con las imágenes de /formulario
   const Nombres = {
     piesParalelos: "PiesParalelos",
     pieAdelantado: "PieAdelantado",
@@ -102,6 +112,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
               <h3 className="text-xl font-bold text-rafam-blue pb-1 flex items-center mt-3 mb-2">
                 2. Velocidad de marcha
               </h3>
+              {/* esta sección no depende de las anteriores, se puede responder siempre */}
               <div className="w-full">
                 <PreguntaFormulario
                   nombre={Nombres.calificacionDeLaMedicionMenor}
@@ -120,6 +131,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
               <h3 className="text-xl font-bold text-rafam-blue flex items-center mt-3 mb-2">
                 3. Levantarse Cinco Veces de una Silla
               </h3>
+              {/* acá la segunda pregunta solo aparece si la prueba previa salió bien */}
               <div className="w-full">
                 <PreguntaFormulario
                   nombre={Nombres.sentado}
@@ -147,6 +159,7 @@ export function Formulario({ onSubmit }: FormularioProps) {
               </div>
 
               {/* Contenedor del botón alineado sin margen superior exagerado */}
+              {/* type="button" para que no haga el submit del form y podamos controlar el cálculo nosotros */}
               <div className="flex justify-center items-center mt-1 pt-2">
                 <button
                   type="button"
