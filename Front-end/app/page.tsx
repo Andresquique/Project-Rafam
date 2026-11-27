@@ -6,18 +6,18 @@ import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
 import { SiteFooter } from "@/components/site-footer"
 import SignInComponent from "@/components/signin-form.component"
+import ForgotPasswordComponent from "@/components/forgot-password.component"
 import Aviso from "@/components/aviso.component"
 import { useAuthStore } from "@/stores/auth.store"
 import { RegisterDto } from "@/types/auth.types"
 
 export default function Page() {
   const router = useRouter()
-  // register es la acción del store que crea la cuenta
-  const { register } = useAuthStore()
+  const { register, forgotPassword } = useAuthStore()
 
   // controla el modal de "Crear cuenta"
   const [crearCuentaOpen, setCrearCuentaOpen] = useState(false)
-  // aviso de éxito o error después de registrarse
+  const [recuperarOpen, setRecuperarOpen] = useState(false)
   const [avisoOpen, setAvisoOpen] = useState(false)
   const [avisoMensaje, setAvisoMensaje] = useState("")
   const [avisoTitulo, setAvisoTitulo] = useState("Crear Cuenta")
@@ -43,7 +43,23 @@ export default function Page() {
     }
   }
 
-  // al cerrar el aviso, si el registro salió bien lo mando directo al home
+  const handleRecuperarPassword = async (email: string): Promise<void> => {
+    try {
+      const mensaje = await forgotPassword(email)
+      setRecuperarOpen(false)
+      setRegistroExitoso(false)
+      setAvisoTitulo("Recuperar contraseña")
+      setAvisoMensaje(mensaje)
+      setAvisoOpen(true)
+    } catch (error: any) {
+      setRegistroExitoso(false)
+      setAvisoTitulo("Error al recuperar la contraseña")
+      setAvisoMensaje(error?.message ?? "No se pudo enviar el email de recuperación.")
+      setAvisoOpen(true)
+      throw error
+    }
+  }
+
   const cerrarAviso = () => {
     setAvisoOpen(false)
     if (registroExitoso) {
@@ -93,11 +109,13 @@ export default function Page() {
           <h2 className="text-2xl font-bold text-rafam-blue">¿Olvidaste tu contraseña?</h2>
           {/* pendiente: recuperar contraseña todavía no está implementado, es solo un ancla */}
           
-          <a href="#recuperar"
+          <button
+            type="button"
+            onClick={() => setRecuperarOpen(true)}
             className="rounded-lg bg-rafam-blue px-10 py-3 text-lg font-bold text-rafam-yellow transition-colors hover:bg-rafam-blue-dark"
           >
             Recuperar contraseña
-          </a>
+          </button>
         </div>
       </section>
 
@@ -108,6 +126,12 @@ export default function Page() {
         isOpen={crearCuentaOpen}
         onClose={() => setCrearCuentaOpen(false)}
         onSubmit={handleCrearCuenta}
+      />
+
+      <ForgotPasswordComponent
+        isOpen={recuperarOpen}
+        onClose={() => setRecuperarOpen(false)}
+        onSubmit={handleRecuperarPassword}
       />
 
       <Aviso

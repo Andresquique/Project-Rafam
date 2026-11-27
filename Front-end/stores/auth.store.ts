@@ -19,6 +19,7 @@ interface AuthState {
 
   login: (credentials: LoginDto) => Promise<void>;
   register: (userData: RegisterDto) => Promise<void>;
+  forgotPassword: (email: string) => Promise<string>;
   logout: () => void;
   checkAuth: () => Promise<void>;
   setLoading: (loading: boolean) => void;
@@ -73,9 +74,22 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      forgotPassword: async (email) => {
+        set({ isLoading: true, error: null });
+        try {
+          const { message } = await authApi.forgotPassword(email);
+          set({ isLoading: false });
+          return message;
+        } catch (err: any) {
+          const errorMessage = err.response?.data?.message || err.message || 'Error desconocido al recuperar la contraseña.';
+          console.error('Error en forgotPassword (auth.store):', err);
+          set({ error: errorMessage, isLoading: false });
+          throw new Error(errorMessage);
+        }
+      },
+
       logout: () => {
-        // limpiamos todo, no hace falta pegarle al back porque el token es stateless
-        set({ 
+        set({  
           accessToken: null, 
           user: null, 
           isAuthenticated: false, 

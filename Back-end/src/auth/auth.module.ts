@@ -8,12 +8,16 @@ import { JwtStrategy } from './jwt/jwt.strategy';
 import { Credencial } from 'src/credencial/entities/credencial.entity';
 import { CredencialService } from 'src/credencial/credencial.service';
 import { PrismaModule } from 'prisma/prisma.module';
+import { MailModule } from 'src/mail/mail.module';
+import { PasswordResetToken } from 'src/password-reset-token/entities/password-reset-token.entity';
+import { PasswordResetTokenService } from 'src/password-reset-token/password-reset-token.service';
 
 @Module({
   imports: [
     PrismaModule,
     ConfigModule,
     PassportModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       // eslint-disable-next-line @typescript-eslint/require-await
@@ -25,7 +29,14 @@ import { PrismaModule } from 'prisma/prisma.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [Credencial, CredencialService, AuthService, JwtStrategy],
+  providers: [
+    Credencial,
+    CredencialService,
+    AuthService,
+    JwtStrategy,
+    PasswordResetToken,
+    PasswordResetTokenService,
+  ],
   exports: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

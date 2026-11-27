@@ -8,6 +8,8 @@ import { ZonaMuscularModule } from './zona-muscular/zona-muscular.module';
 import { VideoModule } from './video/video.module';
 import { ExamenModule } from './examen/examen.module';
 import { AdminModule } from './admin/admin.module';
+import { MailModule } from './mail/mail.module';
+import { PasswordResetTokenModule } from './password-reset-token/password-reset-token.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { AdminModule } from './admin/admin.module';
     VideoModule,
     ExamenModule,
     AdminModule,
+    MailModule,
+    PasswordResetTokenModule,
   ],
   controllers: [],
   providers: [],
